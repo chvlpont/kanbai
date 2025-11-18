@@ -24,7 +24,8 @@ import TaskModal from "../components/TaskModal";
 import ColumnModal from "../components/ColumnModal";
 import ChatSidebar from "../components/ChatSidebar";
 import { createClient } from "@/lib/supabase/client";
-import { MessageSquare, Sparkles } from "lucide-react";
+import { MessageSquare, Sparkles, MoreVertical, LayoutDashboard, Copy } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function BoardPage({
   params,
@@ -44,6 +45,8 @@ export default function BoardPage({
   );
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>("todo");
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string>("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -58,17 +61,20 @@ export default function BoardPage({
     const fetchBoardData = async () => {
       const supabase = createClient();
 
-      // Fetch board title
+      // Fetch board title and invite code
       const { data: boardData, error: boardError } = await supabase
         .from("boards")
-        .select("title")
+        .select("title, invite_code")
         .eq("id", id)
         .single();
       if (boardError) {
         console.error("Error fetching board:", boardError);
         setBoardTitle("Board not found");
       } else {
+        console.log("Board data:", boardData);
+        console.log("Invite code:", boardData.invite_code);
         setBoardTitle(boardData.title);
+        setInviteCode(boardData.invite_code || "");
       }
 
       // Fetch columns
@@ -527,12 +533,106 @@ export default function BoardPage({
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
-              <Link
-                href="/boards"
-                className="px-3 sm:px-4 py-1.5 sm:py-2 text-[#9ca3af] hover:text-white text-xs sm:text-sm font-medium transition-colors flex items-center gap-1"
-              >
-                <span className="hidden sm:inline">Boards</span>
-              </Link>
+              {/* Menu Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="p-2 text-[#9ca3af] hover:text-white hover:bg-[#2a2a3e] rounded-lg transition-colors"
+                  aria-label="Menu"
+                >
+                  <MoreVertical className="w-5 h-5" />
+                </button>
+
+                {isMenuOpen && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setIsMenuOpen(false)}
+                    />
+                    {/* Dropdown */}
+                    <div className="absolute right-0 mt-2 w-48 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg shadow-xl z-20">
+                      <Link
+                        href="/boards"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-[#2a2a3e] transition-colors first:rounded-t-lg"
+                      >
+                        <LayoutDashboard className="w-4 h-4" />
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={async () => {
+                          try {
+                            let codeToShare = inviteCode;
+
+                            // Generate invite code if it doesn't exist
+                            if (!codeToShare) {
+                              const generateCode = () => {
+                                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                                let code = '';
+                                for (let i = 0; i < 6; i++) {
+                                  code += chars.charAt(Math.floor(Math.random() * chars.length));
+                                }
+                                return code;
+                              };
+
+                              codeToShare = generateCode();
+
+                              // Save to database
+                              const supabase = createClient();
+                              const { error: updateError } = await supabase
+                                .from('boards')
+                                .update({ invite_code: codeToShare })
+                                .eq('id', id);
+
+                              if (updateError) {
+                                console.error('Failed to generate invite code:', updateError);
+                                toast.error('Failed to generate invite code');
+                                return;
+                              }
+
+                              // Update local state
+                              setInviteCode(codeToShare);
+                            }
+
+                            // Copy to clipboard
+                            if (navigator.clipboard && window.isSecureContext) {
+                              await navigator.clipboard.writeText(codeToShare);
+                            } else {
+                              // Fallback for older browsers or non-HTTPS
+                              const textArea = document.createElement("textarea");
+                              textArea.value = codeToShare;
+                              textArea.style.position = "fixed";
+                              textArea.style.left = "-999999px";
+                              document.body.appendChild(textArea);
+                              textArea.focus();
+                              textArea.select();
+                              try {
+                                document.execCommand('copy');
+                              } catch (err) {
+                                console.error('Fallback copy failed:', err);
+                                throw err;
+                              }
+                              document.body.removeChild(textArea);
+                            }
+
+                            toast.success("Invite code copied to clipboard!");
+                            setIsMenuOpen(false);
+                          } catch (err) {
+                            console.error("Failed to copy:", err);
+                            toast.error("Failed to copy invite code");
+                          }
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-[#2a2a3e] transition-colors last:rounded-b-lg"
+                      >
+                        <Copy className="w-4 h-4" />
+                        Copy Invite Code
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
               <button
                 onClick={() => setIsChatOpen(!isChatOpen)}
                 className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-all flex items-center gap-1 sm:gap-2 shadow-lg shadow-purple-500/20"
