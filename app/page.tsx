@@ -71,13 +71,16 @@ const HomePage = () => {
           <div className="text-center max-w-4xl mx-auto mb-16">
             {/* Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              AI brings all your tasks and team together
+              Let AI manage your{" "}
+              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                entire board
+              </span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-lg sm:text-xl text-[#9ca3af] mb-8 max-w-2xl mx-auto leading-relaxed">
-              Keep everything in the same place—even if your team isn't. Powered
-              by AI to help you work smarter, faster, and better.
+              Just chat with AI to create tasks, move cards, organize columns, and manage your workflow.
+              Your AI assistant has full control. No clicking required.
             </p>
 
             {/* CTA Buttons */}
@@ -186,21 +189,44 @@ const HomePage = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                   />
                 </svg>
               </div>
               <h3 className="font-semibold text-white mb-2 text-lg">
-                AI-Powered
+                Chat to Control
               </h3>
               <p className="text-[#9ca3af] text-sm">
-                Smart task suggestions and automation to boost productivity
+                Tell AI what to do. Create tasks, move cards, organize everything with simple commands.
               </p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-gradient-to-br from-[#8b5cf6]/20 to-[#a78bfa]/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-6 h-6 text-[#a78bfa]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-white mb-2 text-lg">
+                Full AI Control
+              </h3>
+              <p className="text-[#9ca3af] text-sm">
+                AI has complete access to your board. No manual clicking, just natural conversation.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#14b8a6]/20 to-[#06b6d4]/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-6 h-6 text-[#14b8a6]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -217,30 +243,7 @@ const HomePage = () => {
                 Team Collaboration
               </h3>
               <p className="text-[#9ca3af] text-sm">
-                Work together seamlessly with real-time updates
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#14b8a6]/20 to-[#06b6d4]/20 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-6 h-6 text-[#14b8a6]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-              </div>
-              <h3 className="font-semibold text-white mb-2 text-lg">
-                Track Progress
-              </h3>
-              <p className="text-[#9ca3af] text-sm">
-                Visualize your workflow and stay on top of deadlines
+                Everyone sees AI changes in real-time. Shared boards, shared AI assistant.
               </p>
             </div>
           </div>
