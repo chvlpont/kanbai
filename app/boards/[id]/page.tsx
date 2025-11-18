@@ -47,6 +47,7 @@ export default function BoardPage({
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [inviteCode, setInviteCode] = useState<string>("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [members, setMembers] = useState<{ id: string; username: string }[]>([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -61,10 +62,10 @@ export default function BoardPage({
     const fetchBoardData = async () => {
       const supabase = createClient();
 
-      // Fetch board title and invite code
+      // Fetch board title, invite code, and owner
       const { data: boardData, error: boardError } = await supabase
         .from("boards")
-        .select("title, invite_code")
+        .select("title, invite_code, user_id")
         .eq("id", id)
         .single();
       if (boardError) {
@@ -75,6 +76,37 @@ export default function BoardPage({
         console.log("Invite code:", boardData.invite_code);
         setBoardTitle(boardData.title);
         setInviteCode(boardData.invite_code || "");
+      }
+
+      // Fetch board members
+      const { data: membersData, error: membersError } = await supabase
+        .from("board_members")
+        .select("user_id")
+        .eq("board_id", id);
+
+      if (membersError) {
+        console.error("Error fetching members:", membersError);
+      } else {
+        // Combine owner and members, remove duplicates
+        const allUserIds = new Set<string>();
+        if (boardData?.user_id) {
+          allUserIds.add(boardData.user_id);
+        }
+        if (membersData) {
+          membersData.forEach((m) => allUserIds.add(m.user_id));
+        }
+
+        // Fetch usernames for all users
+        if (allUserIds.size > 0) {
+          const { data: profiles } = await supabase
+            .from("profiles")
+            .select("id, username")
+            .in("id", Array.from(allUserIds));
+
+          if (profiles) {
+            setMembers(profiles);
+          }
+        }
       }
 
       // Fetch columns
@@ -504,8 +536,8 @@ export default function BoardPage({
       {/* Navigation Bar */}
       <nav className="bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-[#2a2a3e]/50 sticky top-0 z-50 shadow-lg shadow-black/20">
         <div className="max-w-[1920px] mx-auto px-3 sm:px-4 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div className="flex items-center gap-3 sm:gap-6">
+          <div className="flex items-center h-14 sm:h-16">
+            <div className="flex items-center gap-3 sm:gap-6 flex-1">
               <Link
                 href="/"
                 className="text-white font-bold text-xl sm:text-2xl tracking-tight bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent hover:scale-105 transition-transform"
@@ -531,8 +563,35 @@ export default function BoardPage({
                   {boardTitle}
                 </h1>
               </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
+              {members.length > 0 && (
+                <>
+                  <div className="hidden sm:block h-6 w-px bg-[#2a2a3e]/50"></div>
+                  <div className="hidden sm:block relative group">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a2e]/50 rounded-full border border-[#2a2a3e]/50 cursor-default">
+                      <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                      <span className="text-sm text-[#9ca3af] font-medium">
+                        {members.length} {members.length === 1 ? 'member' : 'members'}
+                      </span>
+                    </div>
+                    {/* Tooltip */}
+                    <div className="absolute left-0 top-full mt-2 w-48 bg-[#1a1a2e]/95 backdrop-blur-xl border border-[#2a2a3e]/50 rounded-xl shadow-xl shadow-black/20 p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <p className="text-xs text-purple-400/70 font-semibold uppercase tracking-wide mb-2">Board Members</p>
+                      <div className="space-y-1">
+                        {members.map((member) => (
+                          <div key={member.id} className="flex items-center gap-2 text-sm text-white">
+                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                            <span>{member.username}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+              <div className="hidden sm:block h-6 w-px bg-[#2a2a3e]/50"></div>
+              <div className="flex items-center gap-2 sm:gap-3">
               {/* Menu Dropdown */}
               <div className="relative">
                 <button
@@ -660,6 +719,7 @@ export default function BoardPage({
                 <span className="hidden sm:inline">Add Column</span>
                 <span className="sm:hidden">Add</span>
               </button>
+              </div>
             </div>
           </div>
         </div>
