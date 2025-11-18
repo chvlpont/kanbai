@@ -22,7 +22,9 @@ import Column from "../components/Column";
 import TaskCard from "../components/TaskCard";
 import TaskModal from "../components/TaskModal";
 import ColumnModal from "../components/ColumnModal";
+import ChatSidebar from "../components/ChatSidebar";
 import { createClient } from "@/lib/supabase/client";
+import { MessageSquare, Sparkles } from "lucide-react";
 
 export default function BoardPage({
   params,
@@ -41,6 +43,7 @@ export default function BoardPage({
     undefined
   );
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>("todo");
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -462,6 +465,13 @@ export default function BoardPage({
                 <span className="hidden sm:inline">Boards</span>
               </Link>
               <button
+                onClick={() => setIsChatOpen(!isChatOpen)}
+                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-all flex items-center gap-1 sm:gap-2 shadow-lg shadow-purple-500/20"
+              >
+                <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">AI Assistant</span>
+              </button>
+              <button
                 onClick={handleAddColumn}
                 className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] hover:from-[#60a5fa] hover:to-[#a78bfa] text-white text-xs sm:text-sm font-medium rounded-lg transition-all flex items-center gap-1 sm:gap-2 shadow-lg shadow-blue-500/20"
               >
@@ -556,6 +566,23 @@ export default function BoardPage({
         onSave={handleSaveColumn}
         existingTitle={columns.find((col) => col.id === editingColumnId)?.title}
       />
+
+      {/* Chat Sidebar */}
+      <ChatSidebar
+        boardId={id}
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+      />
+
+      {/* Floating button for mobile */}
+      {!isChatOpen && (
+        <button
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-lg flex items-center justify-center transition z-30"
+        >
+          <Sparkles className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 }
