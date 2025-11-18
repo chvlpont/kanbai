@@ -20,6 +20,7 @@ export default function ChatSidebar({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [usernames, setUsernames] = useState<Record<string, string>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
@@ -35,8 +36,9 @@ export default function ChatSidebar({
   // Load messages and set up real-time subscription when chat opens
   useEffect(() => {
     if (!isOpen) {
-      // Clear messages when chat closes to ensure fresh load next time
+      // Clear messages and usernames when chat closes to ensure fresh load next time
       setMessages([]);
+      setUsernames({});
       return;
     }
 
@@ -53,6 +55,29 @@ export default function ChatSidebar({
         return;
       }
 
+      // Fetch usernames for all user messages FIRST
+      const userIds = [...new Set(
+        (data || [])
+          .filter(msg => msg.user_id)
+          .map(msg => msg.user_id)
+      )];
+
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, username")
+          .in("id", userIds);
+
+        if (profiles) {
+          const usernameMap: Record<string, string> = {};
+          profiles.forEach(profile => {
+            usernameMap[profile.id] = profile.username;
+          });
+          setUsernames(usernameMap);
+        }
+      }
+
+      // Set messages AFTER usernames are fetched
       setMessages(data || []);
     };
 
@@ -69,7 +94,7 @@ export default function ChatSidebar({
           table: "board_messages",
           filter: `board_id=eq.${boardId}`,
         },
-        (payload) => {
+        async (payload) => {
           console.log("New message received:", payload);
           const newMessage = payload.new as Message;
 
@@ -80,6 +105,22 @@ export default function ChatSidebar({
             }
             return [...prev, newMessage];
           });
+
+          // Fetch username if this is a user message
+          if (newMessage.user_id && newMessage.role === 'user') {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("username")
+              .eq("id", newMessage.user_id)
+              .single();
+
+            if (profile) {
+              setUsernames(prev => ({
+                ...prev,
+                [newMessage.user_id!]: profile.username
+              }));
+            }
+          }
         }
       )
       .subscribe();
@@ -206,9 +247,9 @@ export default function ChatSidebar({
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto">
           {messages.length === 0 && !isLoading && (
-            <div className="h-full flex flex-col items-center justify-center text-center px-4">
+            <div className="h-full flex flex-col items-center justify-center text-center p-4">
               <div
                 className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center
   justify-center mb-4"
@@ -255,16 +296,15 @@ export default function ChatSidebar({
               timestamp={message.created_at}
               actions={message.actions}
               actionResults={message.action_results}
+              username={message.user_id ? usernames[message.user_id] : undefined}
             />
           ))}
 
           {isLoading && (
-            <div className="flex justify-start mb-4">
-              <div className="bg-[#2a2a3e] rounded-lg px-4 py-3 border border-[#3a3a4e]">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
-                  <span className="text-sm text-gray-300">AI is thinking...</span>
-                </div>
+            <div className="px-4 py-2">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
+                <span className="text-sm text-gray-400">AI is thinking...</span>
               </div>
             </div>
           )}
