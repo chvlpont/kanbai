@@ -1,57 +1,166 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+"use client";
+
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { MoreVertical, Trash2, LogOut } from "lucide-react";
+import ConfirmDialog from "@/app/components/ConfirmDialog";
 
-export default async function BoardsPage() {
-  const supabase = await createClient();
+export default function BoardsPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const [user, setUser] = useState<any>(null);
+  const [username, setUsername] = useState("");
+  const [boards, setBoards] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  useEffect(() => {
+    const fetchData = async () => {
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+      if (!currentUser) {
+        router.push("/login");
+        return;
+      }
 
-  // Get user profile with username
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("username")
-    .eq("id", user.id)
-    .single();
+      setUser(currentUser);
 
-  const username = profile?.username || user.email?.split("@")[0] || "User";
+      // Get user profile with username
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", currentUser.id)
+        .single();
 
-  // Get board IDs where user is a member
-  const { data: memberBoards, error: memberError } = await supabase
-    .from("board_members")
-    .select("board_id")
-    .eq("user_id", user.id);
+      setUsername(profile?.username || currentUser.email?.split("@")[0] || "User");
 
-  const memberBoardIds = memberBoards
-    ? memberBoards.map((bm) => bm.board_id)
-    : [];
+      // Get board IDs where user is a member
+      const { data: memberBoards } = await supabase
+        .from("board_members")
+        .select("board_id")
+        .eq("user_id", currentUser.id);
 
-  // Fetch boards where user is owner or member
-  const { data: boards, error: boardsError } = await supabase
-    .from("boards")
-    .select("*")
-    .or(
-      [
-        `user_id.eq.${user.id}`,
-        memberBoardIds.length > 0 ? `id.in.(${memberBoardIds.join(",")})` : "",
-      ]
-        .filter(Boolean)
-        .join(",")
-    )
-    .order("created_at", { ascending: false });
+      const memberBoardIds = memberBoards
+        ? memberBoards.map((bm) => bm.board_id)
+        : [];
+
+      // Fetch boards where user is owner or member
+      const { data: boardsData } = await supabase
+        .from("boards")
+        .select("*")
+        .or(
+          [
+            `user_id.eq.${currentUser.id}`,
+            memberBoardIds.length > 0 ? `id.in.(${memberBoardIds.join(",")})` : "",
+          ]
+            .filter(Boolean)
+            .join(",")
+        )
+        .order("created_at", { ascending: false });
+
+      setBoards(boardsData || []);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [router]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openMenuId) {
+        setOpenMenuId(null);
+      }
+    };
+
+    if (openMenuId) {
+      document.addEventListener("click", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [openMenuId]);
 
   const handleSignOut = async () => {
-    "use server";
-    const supabase = await createClient();
     await supabase.auth.signOut();
-    redirect("/login");
+    router.push("/login");
   };
+
+  const handleLeaveBoard = async (boardId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setConfirmDialog({
+      isOpen: true,
+      title: "Leave Board",
+      message: "Are you sure you want to leave this board?",
+      onConfirm: async () => {
+        const { error } = await supabase
+          .from("board_members")
+          .delete()
+          .eq("board_id", boardId)
+          .eq("user_id", user.id);
+
+        if (error) {
+          toast.error("Failed to leave board");
+          console.error(error);
+        } else {
+          toast.success("Left board successfully");
+          setBoards(boards.filter((b) => b.id !== boardId));
+        }
+      },
+    });
+  };
+
+  const handleDeleteBoard = async (boardId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Board",
+      message: "Are you sure you want to delete this board?\n\nThis action cannot be undone.",
+      onConfirm: async () => {
+        const { error } = await supabase
+          .from("boards")
+          .delete()
+          .eq("id", boardId);
+
+        if (error) {
+          toast.error("Failed to delete board");
+          console.error(error);
+        } else {
+          toast.success("Board deleted successfully");
+          setBoards(boards.filter((b) => b.id !== boardId));
+        }
+      },
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#1a1a2e] flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#1a1a2e]">
@@ -147,18 +256,62 @@ export default async function BoardsPage() {
               <Link
                 key={board.id}
                 href={`/boards/${board.id}`}
-                className="group relative bg-gradient-to-br from-[#1a1a2e] to-[#15152a] rounded-2xl border border-[#2a2a3e]/50 p-6 hover:border-[#3b82f6]/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 overflow-hidden"
+                className="group relative bg-gradient-to-br from-[#1a1a2e] to-[#15152a] rounded-2xl border border-[#2a2a3e]/50 p-6 hover:border-[#3b82f6]/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 overflow-visible"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Card Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                {/* Ownership Badge */}
-                {board.user_id === user.id && (
-                  <div className="absolute top-4 right-4 px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-blue-300 text-xs font-semibold backdrop-blur-sm">
-                    Owner
-                  </div>
-                )}
+                {/* Three-dots Menu */}
+                <div className="absolute top-4 right-4 z-[100]">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setOpenMenuId(openMenuId === board.id ? null : board.id);
+                    }}
+                    className="p-2 hover:bg-[#2a2a3e]/50 rounded-lg transition-colors"
+                  >
+                    <MoreVertical className="w-4 h-4 text-[#9ca3af]" />
+                  </button>
+
+                  {openMenuId === board.id && (
+                    <>
+                      {/* Dropdown */}
+                      <div
+                        className="absolute right-0 bottom-full mb-2 w-40 bg-[#1a1a2e] border border-[#2a2a3e]/50 rounded-xl shadow-xl shadow-black/20 overflow-visible"
+                        style={{ zIndex: 9999 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        {board.user_id === user.id ? (
+                          <button
+                            onClick={(e) => {
+                              setOpenMenuId(null);
+                              handleDeleteBoard(board.id, e);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-300 hover:bg-red-500/10 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete Board
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              setOpenMenuId(null);
+                              handleLeaveBoard(board.id, e);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-300 hover:bg-red-500/10 transition-colors"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Leave Board
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
 
                 <div className="relative z-10">
                   {/* Board Icon */}
@@ -257,6 +410,15 @@ export default async function BoardsPage() {
           </div>
         )}
       </main>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        onConfirm={confirmDialog.onConfirm}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+      />
     </div>
   );
 }

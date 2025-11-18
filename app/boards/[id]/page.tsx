@@ -32,6 +32,7 @@ import {
   Copy,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import ConfirmDialog from "@/app/components/ConfirmDialog";
 
 export default function BoardPage({
   params,
@@ -56,6 +57,17 @@ export default function BoardPage({
   const [members, setMembers] = useState<{ id: string; username: string }[]>(
     []
   );
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -216,6 +228,23 @@ export default function BoardPage({
     };
   }, [id]);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener("click", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
   const handleAddTask = (status: TaskStatus) => {
     setDefaultStatus(status);
     setEditingTask(undefined);
@@ -228,23 +257,32 @@ export default function BoardPage({
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    if (!confirm("Are you sure you want to delete this task?")) return;
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Task",
+      message: "Are you sure you want to delete this task?",
+      onConfirm: async () => {
+        const supabase = createClient();
+        const { error } = await supabase
+          .from("tasks")
+          .delete()
+          .eq("id", taskId);
 
-    const supabase = createClient();
-    const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+        if (error) {
+          console.error("Error deleting task:", error);
+          toast.error("Failed to delete task");
+          return;
+        }
 
-    if (error) {
-      console.error("Error deleting task:", error);
-      alert("Failed to delete task");
-      return;
-    }
-
-    setColumns((prevColumns) =>
-      prevColumns.map((column) => ({
-        ...column,
-        tasks: column.tasks.filter((task) => task.id !== taskId),
-      }))
-    );
+        toast.success("Task deleted successfully");
+        setColumns((prevColumns) =>
+          prevColumns.map((column) => ({
+            ...column,
+            tasks: column.tasks.filter((task) => task.id !== taskId),
+          }))
+        );
+      },
+    });
   };
 
   const handleSaveTask = async (taskData: {
@@ -267,7 +305,7 @@ export default function BoardPage({
 
       if (error) {
         console.error("Error updating task:", error);
-        alert("Failed to update task");
+        toast.error("Failed to update task");
         return;
       }
 
@@ -305,7 +343,7 @@ export default function BoardPage({
 
       if (error) {
         console.error("Error creating task:", error);
-        alert("Failed to create task");
+        toast.error("Failed to create task");
         return;
       }
 
@@ -334,30 +372,35 @@ export default function BoardPage({
 
   const handleDeleteColumn = async (columnId: string) => {
     const column = columns.find((col) => col.id === columnId);
-    if (column && column.tasks.length > 0) {
-      if (
-        !confirm(
-          `Delete "${column.title}" and all its ${column.tasks.length} tasks?`
-        )
-      )
-        return;
-    } else if (!confirm(`Delete "${column?.title}" column?`)) return;
+    const taskCount = column?.tasks.length || 0;
 
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("columns")
-      .delete()
-      .eq("id", columnId);
+    const message =
+      taskCount > 0
+        ? `Are you sure you want to delete "${column?.title}" and all its ${taskCount} tasks?\n\nThis action cannot be undone.`
+        : `Are you sure you want to delete "${column?.title}"?`;
 
-    if (error) {
-      console.error("Error deleting column:", error);
-      alert("Failed to delete column");
-      return;
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Column",
+      message,
+      onConfirm: async () => {
+        const supabase = createClient();
+        const { error } = await supabase
+          .from("columns")
+          .delete()
+          .eq("id", columnId);
 
-    setColumns((prevColumns) =>
-      prevColumns.filter((col) => col.id !== columnId)
-    );
+        if (error) {
+          console.error("Error deleting column:", error);
+          toast.error("Failed to delete column");
+          return;
+        }
+
+        setColumns((prevColumns) =>
+          prevColumns.filter((col) => col.id !== columnId)
+        );
+      },
+    });
   };
 
   const handleSaveColumn = async (title: string) => {
@@ -372,7 +415,7 @@ export default function BoardPage({
 
       if (error) {
         console.error("Error updating column:", error);
-        alert("Failed to update column");
+        toast.error("Failed to update column");
         return;
       }
 
@@ -397,7 +440,7 @@ export default function BoardPage({
 
       if (error) {
         console.error("Error creating column:", error);
-        alert("Failed to create column");
+        toast.error("Failed to create column");
         return;
       }
 
@@ -505,7 +548,7 @@ export default function BoardPage({
 
     if (error) {
       console.error("Error moving task:", error);
-      alert("Failed to move task");
+      toast.error("Failed to move task");
       return;
     }
 
@@ -622,7 +665,10 @@ export default function BoardPage({
                 {/* Menu Dropdown */}
                 <div className="relative">
                   <button
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMenuOpen(!isMenuOpen);
+                    }}
                     className="p-2 text-[#9ca3af] hover:text-white hover:bg-[#1a1a2e]/50 rounded-lg transition-all border border-transparent hover:border-[#2a2a3e]/50"
                     aria-label="Menu"
                   >
@@ -631,13 +677,11 @@ export default function BoardPage({
 
                   {isMenuOpen && (
                     <>
-                      {/* Backdrop to close menu */}
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setIsMenuOpen(false)}
-                      />
                       {/* Dropdown */}
-                      <div className="absolute right-0 mt-2 w-48 bg-[#1a1a2e] border border-[#2a2a3e]/50 rounded-xl shadow-xl shadow-black/20 z-20 backdrop-blur-xl">
+                      <div
+                        className="absolute right-0 mt-2 w-48 bg-[#1a1a2e] border border-[#2a2a3e]/50 rounded-xl shadow-xl shadow-black/20 z-20 backdrop-blur-xl"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Link
                           href="/boards"
                           onClick={() => setIsMenuOpen(false)}
@@ -851,6 +895,15 @@ export default function BoardPage({
           <Sparkles className="w-6 h-6 text-purple-400" />
         </button>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        onConfirm={confirmDialog.onConfirm}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+      />
     </div>
   );
 }

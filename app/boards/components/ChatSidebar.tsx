@@ -5,6 +5,7 @@ import { X, Send, Sparkles, Loader2 } from "lucide-react";
 import ChatMessage from "./ChatMessage";
 import { createClient } from "@/lib/supabase/client";
 import { Message } from "../types";
+import { toast } from "react-hot-toast";
 
 interface ChatSidebarProps {
   boardId: string;
@@ -56,11 +57,11 @@ export default function ChatSidebar({
       }
 
       // Fetch usernames for all user messages FIRST
-      const userIds = [...new Set(
-        (data || [])
-          .filter(msg => msg.user_id)
-          .map(msg => msg.user_id)
-      )];
+      const userIds = [
+        ...new Set(
+          (data || []).filter((msg) => msg.user_id).map((msg) => msg.user_id)
+        ),
+      ];
 
       if (userIds.length > 0) {
         const { data: profiles } = await supabase
@@ -70,7 +71,7 @@ export default function ChatSidebar({
 
         if (profiles) {
           const usernameMap: Record<string, string> = {};
-          profiles.forEach(profile => {
+          profiles.forEach((profile) => {
             usernameMap[profile.id] = profile.username;
           });
           setUsernames(usernameMap);
@@ -107,7 +108,7 @@ export default function ChatSidebar({
           });
 
           // Fetch username if this is a user message
-          if (newMessage.user_id && newMessage.role === 'user') {
+          if (newMessage.user_id && newMessage.role === "user") {
             const { data: profile } = await supabase
               .from("profiles")
               .select("username")
@@ -115,9 +116,9 @@ export default function ChatSidebar({
               .single();
 
             if (profile) {
-              setUsernames(prev => ({
+              setUsernames((prev) => ({
                 ...prev,
-                [newMessage.user_id!]: profile.username
+                [newMessage.user_id!]: profile.username,
               }));
             }
           }
@@ -146,7 +147,7 @@ export default function ChatSidebar({
       } = await supabase.auth.getUser();
 
       if (!user) {
-        alert("You must be logged in to send messages");
+        toast.error("You must be logged in to send messages");
         return;
       }
 
@@ -166,7 +167,7 @@ export default function ChatSidebar({
 
       if (saveError) {
         console.error("Error saving message:", saveError);
-        alert("Failed to save message");
+        toast.error("Failed to save message");
         return;
       }
 
@@ -201,7 +202,9 @@ export default function ChatSidebar({
       }
     } catch (error) {
       console.error("Error:", error);
-      alert(error instanceof Error ? error.message : "Failed to send message");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send message"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -212,21 +215,15 @@ export default function ChatSidebar({
   return (
     <>
       {/* Sidebar */}
-      <div
-        className="fixed right-0 top-0 h-full w-full sm:w-96 bg-gradient-to-b from-[#0f0f1a] to-[#1a1a2e] border-l border-[#2a2a3e]/50 flex flex-col z-50 backdrop-blur-xl"
-      >
+      <div className="fixed right-0 top-0 h-full w-full sm:w-96 bg-gradient-to-b from-[#0f0f1a] to-[#1a1a2e] border-l border-[#2a2a3e]/50 flex flex-col z-50 backdrop-blur-xl">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#2a2a3e]/50 bg-[#0a0a0f]/80 backdrop-blur-xl">
           <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 flex items-center justify-center"
-            >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-purple-400" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">
-                AI Assistant
-              </h2>
+              <h2 className="text-base font-bold text-white">AI Assistant</h2>
               <p className="text-xs text-purple-300/70">Shared board chat</p>
             </div>
           </div>
@@ -242,9 +239,7 @@ export default function ChatSidebar({
         <div className="flex-1 overflow-y-auto">
           {messages.length === 0 && !isLoading && (
             <div className="h-full flex flex-col items-center justify-center text-center p-6">
-              <div
-                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 flex items-center justify-center mb-6"
-              >
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 flex items-center justify-center mb-6">
                 <Sparkles className="w-10 h-10 text-purple-400" />
               </div>
               <h3 className="text-xl font-bold text-white mb-2">
@@ -286,7 +281,9 @@ export default function ChatSidebar({
               timestamp={message.created_at}
               actions={message.actions}
               actionResults={message.action_results}
-              username={message.user_id ? usernames[message.user_id] : undefined}
+              username={
+                message.user_id ? usernames[message.user_id] : undefined
+              }
             />
           ))}
 
