@@ -9,7 +9,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KanbAI - AI-Powered Kanban Board",
+  title: "Kanbai - AI-Powered Kanban Board",
   description:
     "AI-powered Kanban Board for tasks & productivity. Organize your work smarter with intelligent task management.",
 };
@@ -33,14 +33,14 @@ export default function RootLayout({
           position="bottom-right"
           toastOptions={{
             style: {
-              background: '#1a1a2e',
-              color: '#fff',
-              border: '1px solid #2a2a3e',
+              background: "#1a1a2e",
+              color: "#fff",
+              border: "1px solid #2a2a3e",
             },
             success: {
               iconTheme: {
-                primary: '#10b981',
-                secondary: '#fff',
+                primary: "#10b981",
+                secondary: "#fff",
               },
             },
           }}

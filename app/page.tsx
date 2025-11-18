@@ -9,7 +9,12 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h2 className="text-2xl font-bold text-white">KanbAI</h2>
+              <h2 className="text-2xl font-bold">
+                Kanb
+                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  ai
+                </span>
+              </h2>
             </div>
             <div className="flex items-center gap-3">
               <Link
@@ -215,8 +220,8 @@ const HomePage = () => {
       <footer className="bg-[#0a0a0f] border-t border-[#2a2a3e] py-8 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-[#9ca3af] text-sm">
-              © 2025 KanbAI. All rights reserved.
+            <div className="text-sm">
+              © 2025 Kanb<span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">ai</span>. All rights reserved.
             </div>
             <div className="flex gap-6">
               <Link
