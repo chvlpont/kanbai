@@ -107,20 +107,36 @@ export default function BoardsPage() {
     e.preventDefault();
     e.stopPropagation();
 
+    const board = boards.find((b) => b.id === boardId);
+    console.log("Board info:", {
+      boardId,
+      boardUserId: board?.user_id,
+      currentUserId: user.id,
+      isOwner: board?.user_id === user.id
+    });
+
     setConfirmDialog({
       isOpen: true,
       title: "Leave Board",
       message: "Are you sure you want to leave this board?",
       onConfirm: async () => {
-        const { error } = await supabase
+        console.log("Attempting to leave board:", boardId, "User ID:", user.id);
+
+        const { data, error } = await supabase
           .from("board_members")
           .delete()
           .eq("board_id", boardId)
-          .eq("user_id", user.id);
+          .eq("user_id", user.id)
+          .select();
+
+        console.log("Delete result:", { data, error });
 
         if (error) {
-          toast.error("Failed to leave board");
-          console.error(error);
+          toast.error("Failed to leave board: " + error.message);
+          console.error("Delete error:", error);
+        } else if (!data || data.length === 0) {
+          toast.error("You are not a member of this board");
+          console.error("No membership record found");
         } else {
           toast.success("Left board successfully");
           setBoards(boards.filter((b) => b.id !== boardId));

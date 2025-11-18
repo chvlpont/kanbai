@@ -222,9 +222,69 @@ export default function BoardPage({
       )
       .subscribe();
 
+    // Subscribe to board member changes
+    const membersChannel = supabase
+      .channel(`members-${id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "board_members",
+        },
+        async (payload) => {
+          console.log("Board members changed!", payload.eventType);
+
+          const allUserIds = new Set<string>();
+
+          // Get board owner
+          const { data: boardData } = await supabase
+            .from("boards")
+            .select("user_id")
+            .eq("id", id)
+            .single();
+
+          if (boardData?.user_id) {
+            allUserIds.add(boardData.user_id);
+          }
+
+          // Get board members
+          const { data: membersData } = await supabase
+            .from("board_members")
+            .select("user_id")
+            .eq("board_id", id);
+
+          console.log("Updated members data:", membersData);
+
+          if (membersData && membersData.length > 0) {
+            membersData.forEach((m) => allUserIds.add(m.user_id));
+          }
+
+          // Fetch usernames for all users
+          if (allUserIds.size > 0) {
+            const { data: profiles } = await supabase
+              .from("profiles")
+              .select("id, username")
+              .in("id", Array.from(allUserIds));
+
+            console.log("Updated profiles:", profiles);
+
+            if (profiles) {
+              setMembers(profiles);
+            }
+          } else {
+            setMembers([]);
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log("Members subscription status:", status);
+      });
+
     return () => {
       supabase.removeChannel(columnsChannel);
       supabase.removeChannel(tasksChannel);
+      supabase.removeChannel(membersChannel);
     };
   }, [id]);
 
