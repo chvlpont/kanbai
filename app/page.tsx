@@ -1,12 +1,26 @@
-import React from "react";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+"use client";
 
-const HomePage = async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import LoginModal from "@/app/components/LoginModal";
+import SignupModal from "@/app/components/SignupModal";
+
+const HomePage = () => {
+  const [user, setUser] = useState<any>(null);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isSignupOpen, setIsSignupOpen] = useState(false);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    checkUser();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#1a1a2e]">
@@ -32,18 +46,18 @@ const HomePage = async () => {
                 </Link>
               ) : (
                 <>
-                  <Link
-                    href="/login"
+                  <button
+                    onClick={() => setIsLoginOpen(true)}
                     className="px-4 py-2 text-[#9ca3af] hover:text-white font-medium transition-colors"
                   >
                     Log in
-                  </Link>
-                  <Link
-                    href="/signup"
+                  </button>
+                  <button
+                    onClick={() => setIsSignupOpen(true)}
                     className="px-5 py-2.5 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] hover:from-[#60a5fa] hover:to-[#a78bfa] text-white font-medium rounded-md transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40"
                   >
                     Get started
-                  </Link>
+                  </button>
                 </>
               )}
             </div>
@@ -68,12 +82,12 @@ const HomePage = async () => {
 
             {/* CTA Buttons */}
             <div className="flex justify-center items-center mb-4">
-              <Link
-                href="/signup"
+              <button
+                onClick={() => setIsSignupOpen(true)}
                 className="px-8 py-3.5 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] hover:from-[#60a5fa] hover:to-[#a78bfa] text-white font-semibold rounded-md transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 text-base"
               >
                 Sign up - it's free!
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -269,6 +283,18 @@ const HomePage = async () => {
           </div>
         </div>
       </footer>
+
+      {/* Modals */}
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onSwitchToSignup={() => setIsSignupOpen(true)}
+      />
+      <SignupModal
+        isOpen={isSignupOpen}
+        onClose={() => setIsSignupOpen(false)}
+        onSwitchToLogin={() => setIsLoginOpen(true)}
+      />
     </div>
   );
 };
