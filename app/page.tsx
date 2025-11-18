@@ -1,7 +1,13 @@
 import React from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-const HomePage = () => {
+const HomePage = async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#1a1a2e]">
       {/* Navigation */}
@@ -17,18 +23,29 @@ const HomePage = () => {
               </h2>
             </div>
             <div className="flex items-center gap-3">
-              <Link
-                href="/login"
-                className="px-4 py-2 text-[#9ca3af] hover:text-white font-medium transition-colors"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                className="px-5 py-2.5 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] hover:from-[#60a5fa] hover:to-[#a78bfa] text-white font-medium rounded-md transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40"
-              >
-                Get started
-              </Link>
+              {user ? (
+                <Link
+                  href="/boards"
+                  className="px-5 py-2.5 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-blue-500/50 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/20"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 text-[#9ca3af] hover:text-white font-medium transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="px-5 py-2.5 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] hover:from-[#60a5fa] hover:to-[#a78bfa] text-white font-medium rounded-md transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40"
+                  >
+                    Get started
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
