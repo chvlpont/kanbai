@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { MoreVertical, Trash2, LogOut } from "lucide-react";
 import ConfirmDialog from "@/app/components/ConfirmDialog";
+import JoinBoardModal from "@/app/components/JoinBoardModal";
+import CreateBoardModal from "@/app/components/CreateBoardModal";
 
 export default function BoardsPage() {
   const router = useRouter();
@@ -27,6 +29,8 @@ export default function BoardsPage() {
     message: "",
     onConfirm: () => {},
   });
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -225,8 +229,8 @@ export default function BoardsPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link
-              href="/boards/new"
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
               className="group px-6 py-3 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-blue-500/50 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/20 flex items-center gap-2"
             >
               <svg
@@ -243,9 +247,9 @@ export default function BoardsPage() {
                 />
               </svg>
               Create Board
-            </Link>
-            <Link
-              href="/boards/join"
+            </button>
+            <button
+              onClick={() => setIsJoinModalOpen(true)}
               className="group px-6 py-3 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-green-500/50 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-500/20 flex items-center gap-2"
             >
               <svg
@@ -262,7 +266,7 @@ export default function BoardsPage() {
                 />
               </svg>
               Join Board
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -434,6 +438,20 @@ export default function BoardsPage() {
         onConfirm={confirmDialog.onConfirm}
         title={confirmDialog.title}
         message={confirmDialog.message}
+      />
+
+      {/* Join Board Modal */}
+      <JoinBoardModal
+        isOpen={isJoinModalOpen}
+        onClose={() => setIsJoinModalOpen(false)}
+        userId={user?.id || ""}
+      />
+
+      {/* Create Board Modal */}
+      <CreateBoardModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        userId={user?.id || ""}
       />
     </div>
   );
