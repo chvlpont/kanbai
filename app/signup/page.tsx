@@ -49,19 +49,19 @@ export default function SignupPage() {
       setLoading(false);
     } else if (data.user) {
       // Create profile entry
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .insert([
-          {
-            id: data.user.id,
-            username: username,
-            email: email,
-          },
-        ]);
+      const { error: profileError } = await supabase.from("profiles").insert([
+        {
+          id: data.user.id,
+          username: username,
+          email: email,
+        },
+      ]);
 
       if (profileError) {
         console.error("Error creating profile:", profileError);
-        setError("Account created but profile setup failed. Please contact support.");
+        setError(
+          "Account created but profile setup failed. Please contact support."
+        );
         setLoading(false);
       } else {
         setSuccess(true);
@@ -94,7 +94,10 @@ export default function SignupPage() {
             )}
 
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-white mb-2">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-white mb-2"
+              >
                 Username
               </label>
               <input
@@ -109,7 +112,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-white mb-2"
+              >
                 Email
               </label>
               <input
@@ -124,7 +130,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-white mb-2"
+              >
                 Password
               </label>
               <input
@@ -139,7 +148,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-white mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-white mb-2"
+              >
                 Confirm Password
               </label>
               <input
@@ -166,7 +178,10 @@ export default function SignupPage() {
         <div className="mt-6 text-center">
           <p className="text-[#9ca3af] text-sm">
             Already have an account?{" "}
-            <Link href="/login" className="text-[#60a5fa] hover:text-[#3b82f6] font-medium">
+            <Link
+              href="/login"
+              className="text-[#60a5fa] hover:text-[#3b82f6] font-medium"
+            >
               Sign in
             </Link>
           </p>

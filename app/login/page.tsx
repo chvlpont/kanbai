@@ -52,6 +52,7 @@ export default function LoginPage() {
       router.refresh();
     }
   };
+  // JSX
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#1a1a2e] flex items-center justify-center p-4">
@@ -69,7 +70,10 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label htmlFor="emailOrUsername" className="block text-sm font-medium text-white mb-2">
+            <label
+              htmlFor="emailOrUsername"
+              className="block text-sm font-medium text-white mb-2"
+            >
               Email or Username
             </label>
             <input
@@ -84,7 +88,10 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-white mb-2"
+            >
               Password
             </label>
             <input
@@ -110,7 +117,10 @@ export default function LoginPage() {
         <div className="mt-6 text-center">
           <p className="text-[#9ca3af] text-sm">
             Don't have an account?{" "}
-            <Link href="/signup" className="text-[#60a5fa] hover:text-[#3b82f6] font-medium">
+            <Link
+              href="/signup"
+              className="text-[#60a5fa] hover:text-[#3b82f6] font-medium"
+            >
               Sign up
             </Link>
           </p>
