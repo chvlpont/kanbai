@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,8 +18,29 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
+    // Check if input is an email or username
+    const isEmail = emailOrUsername.includes("@");
+    let loginEmail = emailOrUsername;
+
+    // If it's a username, look up the email from profiles
+    if (!isEmail) {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("username", emailOrUsername)
+        .single();
+
+      if (profileError || !profile) {
+        setError("Username not found");
+        setLoading(false);
+        return;
+      }
+
+      loginEmail = profile.email;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: loginEmail,
       password,
     });
 
@@ -48,16 +69,16 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
-              Email
+            <label htmlFor="emailOrUsername" className="block text-sm font-medium text-white mb-2">
+              Email or Username
             </label>
             <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              id="emailOrUsername"
+              value={emailOrUsername}
+              onChange={(e) => setEmailOrUsername(e.target.value)}
               className="w-full px-4 py-3 bg-[#0f0f1a] border border-[#2a2a3e] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent"
-              placeholder="you@example.com"
+              placeholder="username or email"
               required
             />
           </div>

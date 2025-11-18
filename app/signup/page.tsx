@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignupPage() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -32,20 +33,43 @@ export default function SignupPage() {
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          username: username,
+          display_name: username,
+        },
+      },
     });
 
     if (error) {
       setError(error.message);
       setLoading(false);
-    } else {
-      setSuccess(true);
-      setTimeout(() => {
-        router.push("/boards");
-        router.refresh();
-      }, 2000);
+    } else if (data.user) {
+      // Create profile entry
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert([
+          {
+            id: data.user.id,
+            username: username,
+            email: email,
+          },
+        ]);
+
+      if (profileError) {
+        console.error("Error creating profile:", profileError);
+        setError("Account created but profile setup failed. Please contact support.");
+        setLoading(false);
+      } else {
+        setSuccess(true);
+        setTimeout(() => {
+          router.push("/boards");
+          router.refresh();
+        }, 2000);
+      }
     }
   };
 
@@ -68,6 +92,21 @@ export default function SignupPage() {
                 {error}
               </div>
             )}
+
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-white mb-2">
+                Username
+              </label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-3 bg-[#0f0f1a] border border-[#2a2a3e] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent"
+                placeholder="john_doe"
+                required
+              />
+            </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
