@@ -502,20 +502,20 @@ export default function BoardPage({
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#1a1a2e]">
       {/* Navigation Bar */}
-      <nav className="bg-[#0a0a0f]/95 backdrop-blur-md border-b border-[#2a2a3e] sticky top-0 z-10 shadow-sm">
+      <nav className="bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-[#2a2a3e]/50 sticky top-0 z-50 shadow-lg shadow-black/20">
         <div className="max-w-[1920px] mx-auto px-3 sm:px-4 lg:px-8">
-          <div className="flex justify-between items-center h-12 sm:h-14">
-            <div className="flex items-center gap-2 sm:gap-6">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            <div className="flex items-center gap-3 sm:gap-6">
               <Link
                 href="/"
-                className="text-white font-bold text-lg sm:text-xl hover:text-[#60a5fa] transition-colors"
+                className="text-white font-bold text-xl sm:text-2xl tracking-tight bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent hover:scale-105 transition-transform"
               >
                 KanbAI
               </Link>
-              <div className="hidden sm:block h-5 w-px bg-[#2a2a3e]"></div>
+              <div className="hidden sm:block h-6 w-px bg-[#2a2a3e]/50"></div>
               <div className="hidden sm:flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-[#9ca3af]"
+                  className="w-5 h-5 text-blue-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -527,7 +527,7 @@ export default function BoardPage({
                     d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
                   />
                 </svg>
-                <h1 className="text-white font-semibold text-sm sm:text-base">
+                <h1 className="text-white font-semibold text-base sm:text-lg">
                   {boardTitle}
                 </h1>
               </div>
@@ -537,7 +537,7 @@ export default function BoardPage({
               <div className="relative">
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="p-2 text-[#9ca3af] hover:text-white hover:bg-[#2a2a3e] rounded-lg transition-colors"
+                  className="p-2 text-[#9ca3af] hover:text-white hover:bg-[#1a1a2e]/50 rounded-lg transition-all border border-transparent hover:border-[#2a2a3e]/50"
                   aria-label="Menu"
                 >
                   <MoreVertical className="w-5 h-5" />
@@ -551,13 +551,13 @@ export default function BoardPage({
                       onClick={() => setIsMenuOpen(false)}
                     />
                     {/* Dropdown */}
-                    <div className="absolute right-0 mt-2 w-48 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg shadow-xl z-20">
+                    <div className="absolute right-0 mt-2 w-48 bg-[#1a1a2e] border border-[#2a2a3e]/50 rounded-xl shadow-xl shadow-black/20 z-20 backdrop-blur-xl">
                       <Link
                         href="/boards"
                         onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-[#2a2a3e] transition-colors first:rounded-t-lg"
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-[#2a2a3e]/50 transition-colors first:rounded-t-xl"
                       >
-                        <LayoutDashboard className="w-4 h-4" />
+                        <LayoutDashboard className="w-4 h-4 text-blue-400" />
                         Dashboard
                       </Link>
                       <button
@@ -623,9 +623,9 @@ export default function BoardPage({
                             toast.error("Failed to copy invite code");
                           }
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-[#2a2a3e] transition-colors last:rounded-b-lg"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-[#2a2a3e]/50 transition-colors last:rounded-b-xl"
                       >
-                        <Copy className="w-4 h-4" />
+                        <Copy className="w-4 h-4 text-green-400" />
                         Copy Invite Code
                       </button>
                     </div>
@@ -635,17 +635,17 @@ export default function BoardPage({
 
               <button
                 onClick={() => setIsChatOpen(!isChatOpen)}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-all flex items-center gap-1 sm:gap-2 shadow-lg shadow-purple-500/20"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-purple-500/50 text-white text-xs sm:text-sm font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/20 flex items-center gap-1 sm:gap-2"
               >
-                <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" />
                 <span className="hidden sm:inline">AI Assistant</span>
               </button>
               <button
                 onClick={handleAddColumn}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] hover:from-[#60a5fa] hover:to-[#a78bfa] text-white text-xs sm:text-sm font-medium rounded-lg transition-all flex items-center gap-1 sm:gap-2 shadow-lg shadow-blue-500/20"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-blue-500/50 text-white text-xs sm:text-sm font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/20 flex items-center gap-1 sm:gap-2"
               >
                 <svg
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -747,9 +747,9 @@ export default function BoardPage({
       {!isChatOpen && (
         <button
           onClick={() => setIsChatOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-lg flex items-center justify-center transition z-30"
+          className="fixed bottom-6 right-6 w-14 h-14 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-purple-500/50 text-white rounded-full shadow-xl hover:shadow-purple-500/30 flex items-center justify-center transition-all hover:scale-110 z-30"
         >
-          <Sparkles className="w-6 h-6" />
+          <Sparkles className="w-6 h-6 text-purple-400" />
         </button>
       )}
     </div>
