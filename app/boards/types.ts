@@ -19,3 +19,15 @@ export interface Column {
   tasks: Task[];
   created_at: string;
 }
+
+export interface Message {
+  id: string;
+  board_id: string;
+  user_id?: string;
+  role: "user" | "assistant";
+  content: string;
+  actions?: any[];
+  action_results?: any[];
+  created_at: string;
+  updated_at: string;
+}

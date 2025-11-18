@@ -7,6 +7,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { AnimatePresence } from "framer-motion";
 import { Column as ColumnType, Task } from "../types";
 import TaskCard from "./TaskCard";
 
@@ -157,14 +158,16 @@ export default function Column({
           items={column.tasks.map((task) => task.id)}
           strategy={verticalListSortingStrategy}
         >
-          {column.tasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onEdit={onEditTask}
-              onDelete={onDeleteTask}
-            />
-          ))}
+          <AnimatePresence mode="popLayout">
+            {column.tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onEdit={onEditTask}
+                onDelete={onDeleteTask}
+              />
+            ))}
+          </AnimatePresence>
         </SortableContext>
       </div>
 

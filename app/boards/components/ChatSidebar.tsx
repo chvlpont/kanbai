@@ -1,22 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Send, Sparkles, Loader2 } from "lucide-react";
 import ChatMessage from "./ChatMessage";
+import { createClient } from "@/lib/supabase/client";
+import { Message } from "../types";
 
 interface ChatSidebarProps {
   boardId: string;
   isOpen: boolean;
   onClose: () => void;
-}
-
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: string;
-  actions?: any[];
-  actionResults?: any[];
 }
 
 export default function ChatSidebar({
@@ -27,6 +20,74 @@ export default function ChatSidebar({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const supabase = createClient();
+
+  // Scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Load messages and set up real-time subscription when chat opens
+  useEffect(() => {
+    if (!isOpen) {
+      // Clear messages when chat closes to ensure fresh load next time
+      setMessages([]);
+      return;
+    }
+
+    // Load all messages from database
+    const loadMessages = async () => {
+      const { data, error } = await supabase
+        .from("board_messages")
+        .select("*")
+        .eq("board_id", boardId)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Error loading messages:", error);
+        return;
+      }
+
+      setMessages(data || []);
+    };
+
+    loadMessages();
+
+    // Set up real-time subscription for new messages
+    const channel = supabase
+      .channel(`board-messages-${boardId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "board_messages",
+          filter: `board_id=eq.${boardId}`,
+        },
+        (payload) => {
+          console.log("New message received:", payload);
+          const newMessage = payload.new as Message;
+
+          // Only add the message if it doesn't already exist
+          setMessages((prev) => {
+            if (prev.some((msg) => msg.id === newMessage.id)) {
+              return prev;
+            }
+            return [...prev, newMessage];
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [boardId, isOpen]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,19 +95,44 @@ export default function ChatSidebar({
     if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
-    const userMessageObj: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: userMessage,
-      timestamp: new Date().toISOString(),
-    };
-
-    // Add user message immediately
-    setMessages((prev) => [...prev, userMessageObj]);
     setInput("");
     setIsLoading(true);
 
     try {
+      // Get current user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        alert("You must be logged in to send messages");
+        return;
+      }
+
+      // Save user message to database
+      const { data: savedMessage, error: saveError } = await supabase
+        .from("board_messages")
+        .insert([
+          {
+            board_id: boardId,
+            user_id: user.id,
+            role: "user",
+            content: userMessage,
+          },
+        ])
+        .select()
+        .single();
+
+      if (saveError) {
+        console.error("Error saving message:", saveError);
+        alert("Failed to save message");
+        return;
+      }
+
+      // Optimistically add the user message to the UI immediately
+      setMessages((prev) => [...prev, savedMessage]);
+
+      // Call AI API (it will save the AI response to the database)
       const response = await fetch("/api/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,17 +148,16 @@ export default function ChatSidebar({
         throw new Error(data.error || "Failed to get AI response");
       }
 
-      // Add AI response
-      const aiMessageObj: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: data.message,
-        timestamp: new Date().toISOString(),
-        actions: data.actions || [],
-        actionResults: data.actionResults || [],
-      };
-
-      setMessages((prev) => [...prev, aiMessageObj]);
+      // Optimistically add the AI response to the UI immediately
+      if (data.savedMessage) {
+        setMessages((prev) => {
+          // Check if message already exists (shouldn't happen, but safety check)
+          if (prev.some((msg) => msg.id === data.savedMessage.id)) {
+            return prev;
+          }
+          return [...prev, data.savedMessage];
+        });
+      }
     } catch (error) {
       console.error("Error:", error);
       alert(error instanceof Error ? error.message : "Failed to send message");
@@ -106,8 +191,10 @@ export default function ChatSidebar({
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-white">AI Assistant</h2>
-              <p className="text-xs text-gray-400">Powered by Llama 3.3</p>
+              <h2 className="text-sm font-semibold text-white">
+                Board Chat (AI Assistant)
+              </h2>
+              <p className="text-xs text-gray-400">Everyone can see this</p>
             </div>
           </div>
           <button
@@ -129,10 +216,10 @@ export default function ChatSidebar({
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">
-                AI Assistant Ready
+                Board Chat
               </h3>
               <p className="text-sm text-gray-400 mb-6">
-                Ask me anything about your board
+                Chat with AI - everyone on the board can see the conversation
               </p>
 
               <div className="w-full max-w-xs space-y-3 text-left">
@@ -144,12 +231,12 @@ export default function ChatSidebar({
                     "What's on the board?",
                     "Create a task for testing",
                     "Summarize my tasks",
-                    "Clean up done tasks",
+                    "Move completed tasks",
                   ].map((example, i) => (
                     <button
                       key={i}
                       onClick={() => setInput(example)}
-                      className="w-full text-left px-3 py-2 rounded-lg bg-[#2a2a3e] hover:bg-[#3a3a4e] text-xs text-gray-300    
+                      className="w-full text-left px-3 py-2 rounded-lg bg-[#2a2a3e] hover:bg-[#3a3a4e] text-xs text-gray-300
    transition border border-transparent hover:border-blue-500"
                     >
                       "{example}"
@@ -165,9 +252,9 @@ export default function ChatSidebar({
               key={message.id}
               role={message.role}
               content={message.content}
-              timestamp={message.timestamp}
+              timestamp={message.created_at}
               actions={message.actions}
-              actionResults={message.actionResults}
+              actionResults={message.action_results}
             />
           ))}
 
@@ -176,11 +263,13 @@ export default function ChatSidebar({
               <div className="bg-[#2a2a3e] rounded-lg px-4 py-3 border border-[#3a3a4e]">
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
-                  <span className="text-sm text-gray-300">Thinking...</span>
+                  <span className="text-sm text-gray-300">AI is thinking...</span>
                 </div>
               </div>
             </div>
           )}
+
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Input */}
@@ -193,7 +282,7 @@ export default function ChatSidebar({
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask me anything..."
+              placeholder="Ask AI anything..."
               className="flex-1 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-sm text-white
   placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               disabled={isLoading}
@@ -202,7 +291,7 @@ export default function ChatSidebar({
               type="submit"
               disabled={isLoading || !input.trim()}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700
-  disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2.5 transition flex       
+  disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2.5 transition flex
   items-center justify-center min-w-[44px]"
             >
               {isLoading ? (

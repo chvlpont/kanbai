@@ -101,6 +101,75 @@ export default function BoardPage({
     fetchBoardData();
   }, [id]);
 
+  // Real-time subscriptions for AI updates
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Refetch columns and tasks
+    const refetchData = async () => {
+      const { data: columnsData } = await supabase
+        .from("columns")
+        .select("*")
+        .eq("board_id", id)
+        .order("position");
+
+      if (!columnsData) return;
+
+      const columnsWithTasks = await Promise.all(
+        columnsData.map(async (col) => {
+          const { data: tasksData } = await supabase
+            .from("tasks")
+            .select("*")
+            .eq("column_id", col.id)
+            .order("position");
+          return { ...col, tasks: tasksData || [] };
+        })
+      );
+
+      setColumns(columnsWithTasks);
+    };
+
+    // Subscribe to column changes
+    const columnsChannel = supabase
+      .channel(`columns-${id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "columns",
+          filter: `board_id=eq.${id}`,
+        },
+        () => {
+          console.log("Column changed, refetching...");
+          refetchData();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to task changes
+    const tasksChannel = supabase
+      .channel(`tasks-${id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tasks",
+        },
+        () => {
+          console.log("Task changed, refetching...");
+          refetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(columnsChannel);
+      supabase.removeChannel(tasksChannel);
+    };
+  }, [id]);
+
   const handleAddTask = (status: TaskStatus) => {
     setDefaultStatus(status);
     setEditingTask(undefined);

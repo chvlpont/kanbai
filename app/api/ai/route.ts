@@ -135,12 +135,35 @@ export async function POST(req: NextRequest) {
 
     console.log("[AI] Action results:", actionResults);
 
-    // 8. Return response
+    // 8. Save AI response to database
+    const { data: savedAiMessage, error: saveError } = await supabase
+      .from("board_messages")
+      .insert([
+        {
+          board_id: boardId,
+          user_id: null, // AI messages don't have a user_id
+          role: "assistant",
+          content: aiResponse.message,
+          actions: aiResponse.actions,
+          action_results: actionResults,
+        },
+      ])
+      .select()
+      .single();
+
+    if (saveError) {
+      console.error("[AI] Error saving AI message:", saveError);
+      // Don't fail the request if we can't save the message
+      // The response will still be returned to the user
+    }
+
+    // 9. Return response
     return NextResponse.json({
       success: true,
       message: aiResponse.message,
       actions: aiResponse.actions,
       actionResults,
+      savedMessage: savedAiMessage, // Include the saved message with ID and timestamps
     });
   } catch (error) {
     console.error("AI API error:", error);

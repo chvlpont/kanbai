@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { motion } from "framer-motion";
 import { Task } from "../types";
 
 interface TaskCardProps {
@@ -27,11 +28,20 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
   };
 
   return (
-    <div
+    <motion.div
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
+      layout
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: isDragging ? 0.5 : 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      transition={{
+        layout: { duration: 0.3, ease: "easeInOut" },
+        opacity: { duration: 0.2 },
+        scale: { duration: 0.2 },
+      }}
       className="group bg-[#0f0f1a] rounded-lg p-2.5 sm:p-3 shadow-sm border border-[#2a2a3e] hover:border-[#3b82f6] hover:shadow-md hover:shadow-blue-500/20 transition-all cursor-grab active:cursor-grabbing touch-none"
     >
       <div className="flex justify-between items-start gap-2">
@@ -70,6 +80,6 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
           {task.description}
         </p>
       )}
-    </div>
+    </motion.div>
   );
 }
