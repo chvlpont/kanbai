@@ -93,13 +93,13 @@ export default function JoinBoardModal({
 
       {/* Modal */}
       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4 animate-in zoom-in-95 fade-in duration-300">
-        <div className="relative bg-[#1a1a2e] rounded-2xl border border-[#2a2a3e] overflow-hidden">
+        <div className="relative bg-surface rounded-2xl border border-border overflow-hidden shadow-xl">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[#2a2a3e]">
-            <h2 className="text-2xl font-bold text-white">Join Board</h2>
+          <div className="flex items-center justify-between p-6 border-b border-border">
+            <h2 className="text-2xl font-bold text-text-primary">Join Board</h2>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-white hover:bg-[#2a2a3e] rounded-lg transition-all"
+              className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all"
             >
               <X className="w-5 h-5" />
             </button>
@@ -108,19 +108,19 @@ export default function JoinBoardModal({
           {/* Form */}
           <form onSubmit={handleJoinBoard} className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Invite Code
               </label>
               <input
                 type="text"
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                className="w-full px-4 py-3 bg-[#0f0f1a] border border-[#2a2a3e] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors text-center text-lg font-mono tracking-widest"
+                className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:border-accent-green transition-colors text-center text-lg font-mono tracking-widest"
                 placeholder="XXXXXX"
                 required
                 maxLength={6}
               />
-              <p className="mt-2 text-sm text-gray-400">
+              <p className="mt-2 text-sm text-text-secondary">
                 Enter the 6-character invite code shared by the board owner
               </p>
             </div>
@@ -128,7 +128,7 @@ export default function JoinBoardModal({
             <button
               type="submit"
               disabled={loading || inviteCode.length !== 6}
-              className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-accent-green hover:brightness-110 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {loading ? "Joining..." : "Join Board"}
             </button>

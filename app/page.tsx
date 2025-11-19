@@ -2,15 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { Sun, Moon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import LoginModal from "@/app/components/LoginModal";
 import SignupModal from "@/app/components/SignupModal";
+import { useTheme } from "@/app/components/ThemeProvider";
 
 const HomePage = () => {
   const [user, setUser] = useState<any>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const supabase = createClient();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -23,24 +26,35 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#1a1a2e]">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Navigation */}
-      <nav className="bg-[#0a0a0f]/80 backdrop-blur-sm border-b border-[#2a2a3e]">
+      <nav className="bg-surface/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h2 className="text-2xl font-bold">
+              <h2 className="text-2xl font-bold text-text-primary">
                 Kanb
-                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">
                   ai
                 </span>
               </h2>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all border border-transparent hover:border-border"
+                aria-label="Toggle theme"
+              >
+                {theme === "light" ? (
+                  <Moon className="w-5 h-5" />
+                ) : (
+                  <Sun className="w-5 h-5" />
+                )}
+              </button>
               {user ? (
                 <Link
                   href="/boards"
-                  className="px-5 py-2.5 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-blue-500/50 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/20"
+                  className="px-5 py-2.5 bg-surface hover:bg-surface-muted border border-border hover:border-primary text-text-primary font-semibold rounded-xl transition-all"
                 >
                   Dashboard
                 </Link>
@@ -48,13 +62,13 @@ const HomePage = () => {
                 <>
                   <button
                     onClick={() => setIsLoginOpen(true)}
-                    className="px-4 py-2 text-[#9ca3af] hover:text-white font-medium transition-colors"
+                    className="px-4 py-2 text-text-secondary hover:text-text-primary font-medium transition-colors"
                   >
                     Log in
                   </button>
                   <button
                     onClick={() => setIsSignupOpen(true)}
-                    className="px-5 py-2.5 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] hover:from-[#60a5fa] hover:to-[#a78bfa] text-white font-medium rounded-md transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40"
+                    className="px-5 py-2.5 bg-gradient-to-r from-primary to-accent-purple hover:from-primary-hover hover:to-accent-purple text-white font-medium rounded-md transition-all duration-300 shadow-lg"
                   >
                     Get started
                   </button>
@@ -70,15 +84,15 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-16">
             {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary mb-6 leading-tight">
               Let AI manage your{" "}
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">
                 entire board
               </span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg sm:text-xl text-[#9ca3af] mb-8 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-text-secondary mb-8 max-w-2xl mx-auto leading-relaxed">
               Just chat with AI to create tasks, move cards, organize columns, and manage your workflow.
               Your AI assistant has full control. No clicking required.
             </p>
@@ -87,7 +101,7 @@ const HomePage = () => {
             <div className="flex justify-center items-center mb-4">
               <button
                 onClick={() => setIsSignupOpen(true)}
-                className="px-8 py-3.5 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] hover:from-[#60a5fa] hover:to-[#a78bfa] text-white font-semibold rounded-md transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 text-base"
+                className="px-8 py-3.5 bg-gradient-to-r from-primary to-accent-purple hover:from-primary-hover hover:to-accent-purple text-white font-semibold rounded-md transition-all duration-300 shadow-lg text-base"
               >
                 Sign up - it's free!
               </button>
@@ -96,37 +110,37 @@ const HomePage = () => {
 
           {/* Product Preview */}
           <div className="max-w-5xl mx-auto">
-            <div className="bg-[#1a1a2e] rounded-lg shadow-2xl overflow-hidden border border-[#2a2a3e] shadow-blue-500/10">
+            <div className="bg-surface rounded-lg shadow-2xl overflow-hidden border border-border">
               {/* Browser-like header */}
-              <div className="bg-[#0f0f1a] border-b border-[#2a2a3e] px-4 py-3 flex items-center gap-2">
+              <div className="bg-surface-muted border-b border-border px-4 py-3 flex items-center gap-2">
                 <div className="flex gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-400"></div>
                   <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                  <div className="w-3 h-3 rounded-full bg-accent-green"></div>
                 </div>
               </div>
 
               {/* Kanban Board Preview */}
-              <div className="bg-gradient-to-br from-[#3b82f6] via-[#8b5cf6] to-[#14b8a6] p-8 sm:p-12">
+              <div className="bg-gradient-to-br from-primary via-accent-purple to-accent-green p-8 sm:p-12">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* Column 1 - To Do */}
-                  <div className="bg-[#1a1a2e]/95 backdrop-blur rounded-lg p-4 shadow-md border border-[#2a2a3e]">
-                    <h3 className="font-semibold text-white mb-3 text-sm">
+                  <div className="bg-surface/95 backdrop-blur rounded-lg p-4 shadow-md border border-border">
+                    <h3 className="font-semibold text-text-primary mb-3 text-sm">
                       To Do
                     </h3>
                     <div className="space-y-2">
-                      <div className="bg-[#0f0f1a] rounded-md p-3 shadow-sm border border-[#2a2a3e]">
-                        <p className="text-sm text-white font-medium">
+                      <div className="bg-background rounded-md p-3 shadow-sm border border-border">
+                        <p className="text-sm text-text-primary font-medium">
                           Design new feature
                         </p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">
+                          <span className="text-xs bg-primary text-white px-2 py-1 rounded">
                             Design
                           </span>
                         </div>
                       </div>
-                      <div className="bg-[#0f0f1a] rounded-md p-3 shadow-sm border border-[#2a2a3e]">
-                        <p className="text-sm text-white font-medium">
+                      <div className="bg-background rounded-md p-3 shadow-sm border border-border">
+                        <p className="text-sm text-text-primary font-medium">
                           Write documentation
                         </p>
                       </div>
@@ -134,17 +148,17 @@ const HomePage = () => {
                   </div>
 
                   {/* Column 2 - In Progress */}
-                  <div className="bg-[#1a1a2e]/95 backdrop-blur rounded-lg p-4 shadow-md border border-[#2a2a3e]">
-                    <h3 className="font-semibold text-white mb-3 text-sm">
+                  <div className="bg-surface/95 backdrop-blur rounded-lg p-4 shadow-md border border-border">
+                    <h3 className="font-semibold text-text-primary mb-3 text-sm">
                       In Progress
                     </h3>
                     <div className="space-y-2">
-                      <div className="bg-[#0f0f1a] rounded-md p-3 shadow-sm border border-[#2a2a3e]">
-                        <p className="text-sm text-white font-medium">
+                      <div className="bg-background rounded-md p-3 shadow-sm border border-border">
+                        <p className="text-sm text-text-primary font-medium">
                           Build AI integration
                         </p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded">
+                          <span className="text-xs bg-accent-purple text-white px-2 py-1 rounded">
                             AI
                           </span>
                         </div>
@@ -153,17 +167,17 @@ const HomePage = () => {
                   </div>
 
                   {/* Column 3 - Done */}
-                  <div className="bg-[#1a1a2e]/95 backdrop-blur rounded-lg p-4 shadow-md border border-[#2a2a3e]">
-                    <h3 className="font-semibold text-white mb-3 text-sm">
+                  <div className="bg-surface/95 backdrop-blur rounded-lg p-4 shadow-md border border-border">
+                    <h3 className="font-semibold text-text-primary mb-3 text-sm">
                       Done
                     </h3>
                     <div className="space-y-2">
-                      <div className="bg-[#0f0f1a] rounded-md p-3 shadow-sm border border-[#2a2a3e]">
-                        <p className="text-sm text-white font-medium">
+                      <div className="bg-background rounded-md p-3 shadow-sm border border-border">
+                        <p className="text-sm text-text-primary font-medium">
                           Setup project
                         </p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="text-xs bg-green-600 text-white px-2 py-1 rounded">
+                          <span className="text-xs bg-accent-green text-white px-2 py-1 rounded">
                             Complete
                           </span>
                         </div>
@@ -178,9 +192,9 @@ const HomePage = () => {
           {/* Feature highlights */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-20">
             <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#3b82f6]/20 to-[#8b5cf6]/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent-purple/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="w-6 h-6 text-[#60a5fa]"
+                  className="w-6 h-6 text-primary"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -193,17 +207,17 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="font-semibold text-white mb-2 text-lg">
+              <h3 className="font-semibold text-text-primary mb-2 text-lg">
                 Chat to Control
               </h3>
-              <p className="text-[#9ca3af] text-sm">
+              <p className="text-text-secondary text-sm">
                 Tell AI what to do. Create tasks, move cards, organize everything with simple commands.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#8b5cf6]/20 to-[#a78bfa]/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-accent-purple/20 to-accent-purple/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="w-6 h-6 text-[#a78bfa]"
+                  className="w-6 h-6 text-accent-purple"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -216,17 +230,17 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="font-semibold text-white mb-2 text-lg">
+              <h3 className="font-semibold text-text-primary mb-2 text-lg">
                 Full AI Control
               </h3>
-              <p className="text-[#9ca3af] text-sm">
+              <p className="text-text-secondary text-sm">
                 AI has complete access to your board. No manual clicking, just natural conversation.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#14b8a6]/20 to-[#06b6d4]/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-accent-green/20 to-accent-green/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="w-6 h-6 text-[#14b8a6]"
+                  className="w-6 h-6 text-accent-green"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -239,10 +253,10 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="font-semibold text-white mb-2 text-lg">
+              <h3 className="font-semibold text-text-primary mb-2 text-lg">
                 Team Collaboration
               </h3>
-              <p className="text-[#9ca3af] text-sm">
+              <p className="text-text-secondary text-sm">
                 Everyone sees AI changes in real-time. Shared boards, shared AI assistant.
               </p>
             </div>
@@ -251,34 +265,34 @@ const HomePage = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#0a0a0f] border-t border-[#2a2a3e] py-8 mt-16">
+      <footer className="bg-surface border-t border-border py-8 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-sm">
-              © 2025 Kanb<span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">ai</span>. All rights reserved.
+            <div className="text-sm text-text-secondary">
+              © 2025 Kanb<span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">ai</span>. All rights reserved.
             </div>
             <div className="flex gap-6">
               <Link
                 href="/about"
-                className="text-[#9ca3af] hover:text-white text-sm transition-colors"
+                className="text-text-secondary hover:text-text-primary text-sm transition-colors"
               >
                 About
               </Link>
               <Link
                 href="/contact"
-                className="text-[#9ca3af] hover:text-white text-sm transition-colors"
+                className="text-text-secondary hover:text-text-primary text-sm transition-colors"
               >
                 Contact
               </Link>
               <Link
                 href="/privacy"
-                className="text-[#9ca3af] hover:text-white text-sm transition-colors"
+                className="text-text-secondary hover:text-text-primary text-sm transition-colors"
               >
                 Privacy
               </Link>
               <Link
                 href="/terms"
-                className="text-[#9ca3af] hover:text-white text-sm transition-colors"
+                className="text-text-secondary hover:text-text-primary text-sm transition-colors"
               >
                 Terms
               </Link>

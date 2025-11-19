@@ -74,13 +74,13 @@ export default function LoginModal({
 
       {/* Modal */}
       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4 animate-in zoom-in-95 fade-in duration-300">
-        <div className="relative bg-[#1a1a2e] rounded-2xl border border-[#2a2a3e] overflow-hidden">
+        <div className="relative bg-surface rounded-2xl border border-border overflow-hidden shadow-xl">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[#2a2a3e]">
-            <h2 className="text-2xl font-bold text-white">Welcome Back</h2>
+          <div className="flex items-center justify-between p-6 border-b border-border">
+            <h2 className="text-2xl font-bold text-text-primary">Welcome Back</h2>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-white hover:bg-[#2a2a3e] rounded-lg transition-all"
+              className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all"
             >
               <X className="w-5 h-5" />
             </button>
@@ -89,28 +89,28 @@ export default function LoginModal({
           {/* Form */}
           <form onSubmit={handleLogin} className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Email or Username
               </label>
               <input
                 type="text"
                 value={emailOrUsername}
                 onChange={(e) => setEmailOrUsername(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f0f1a] border border-[#2a2a3e] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:border-primary transition-colors"
                 placeholder="Enter your email or username"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-[#0f0f1a] border border-[#2a2a3e] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:border-primary transition-colors"
                 placeholder="Enter your password"
                 required
               />
@@ -119,12 +119,12 @@ export default function LoginModal({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-gradient-to-r from-primary to-accent-purple hover:from-primary-hover hover:to-accent-purple text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {loading ? "Logging in..." : "Log In"}
             </button>
 
-            <p className="text-center text-sm text-gray-400">
+            <p className="text-center text-sm text-text-secondary">
               Don't have an account?{" "}
               <button
                 type="button"
@@ -132,7 +132,7 @@ export default function LoginModal({
                   onClose();
                   onSwitchToSignup();
                 }}
-                className="text-blue-400 hover:text-blue-300 font-medium"
+                className="text-primary hover:text-primary-hover font-medium"
               >
                 Sign up
               </button>

@@ -32,16 +32,16 @@ export default function ConfirmDialog({
     <>
       {/* Dialog */}
       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4 animate-in zoom-in-95 fade-in duration-300">
-        <div className="relative bg-[#0f0f1a] rounded-2xl border border-[#1a1a2e] overflow-hidden">
+        <div className="relative bg-surface rounded-2xl border border-border overflow-hidden shadow-xl">
           <div className="relative">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#1a1a2e]">
-              <h3 className="text-2xl font-bold text-white">
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h3 className="text-2xl font-bold text-text-primary">
                 {title}
               </h3>
               <button
                 onClick={onClose}
-                className="p-2 text-gray-400 hover:text-white hover:bg-[#1a1a2e] rounded-lg transition-all duration-200"
+                className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all duration-200"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -49,16 +49,16 @@ export default function ConfirmDialog({
 
             {/* Content */}
             <div className="p-8">
-              <p className="text-gray-300 text-base leading-relaxed whitespace-pre-line">
+              <p className="text-text-secondary text-base leading-relaxed whitespace-pre-line">
                 {message}
               </p>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-center gap-3 p-6 bg-[#0a0a0f] border-t border-[#1a1a2e]">
+            <div className="flex items-center justify-center gap-3 p-6 bg-background border-t border-border">
               <button
                 onClick={onClose}
-                className="px-7 py-3 bg-[#1a1a2e] hover:bg-[#252530] text-gray-200 font-semibold rounded-lg transition-all duration-200"
+                className="px-7 py-3 bg-surface-muted hover:bg-surface text-text-primary font-semibold rounded-lg transition-all duration-200 border border-border"
               >
                 Cancel
               </button>
@@ -67,7 +67,7 @@ export default function ConfirmDialog({
                 className={`px-7 py-3 font-semibold rounded-lg transition-all duration-200 ${
                   confirmStyle === "danger"
                     ? "bg-red-600 hover:bg-red-500 text-white"
-                    : "bg-blue-600 hover:bg-blue-500 text-white"
+                    : "bg-primary hover:brightness-110 text-white"
                 }`}
               >
                 {confirmText}

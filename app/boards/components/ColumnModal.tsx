@@ -29,15 +29,15 @@ export default function ColumnModal({ isOpen, onClose, onSave, existingTitle }: 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
-      <div className="bg-[#1a1a2e] rounded-lg shadow-xl shadow-blue-500/10 max-w-md w-full border border-[#2a2a3e]">
+      <div className="bg-surface rounded-lg shadow-xl max-w-md w-full border border-border">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-[#2a2a3e]">
-          <h2 className="text-lg sm:text-xl font-semibold text-white">
+        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-border">
+          <h2 className="text-lg sm:text-xl font-semibold text-text-primary">
             {existingTitle ? "Edit Column" : "Add New Column"}
           </h2>
           <button
             onClick={onClose}
-            className="text-[#9ca3af] hover:text-white transition-colors"
+            className="text-text-secondary hover:text-text-primary transition-colors"
           >
             <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -48,7 +48,7 @@ export default function ColumnModal({ isOpen, onClose, onSave, existingTitle }: 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
           <div>
-            <label htmlFor="columnTitle" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="columnTitle" className="block text-sm font-medium text-text-primary mb-2">
               Column Title *
             </label>
             <input
@@ -56,7 +56,7 @@ export default function ColumnModal({ isOpen, onClose, onSave, existingTitle }: 
               id="columnTitle"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 bg-[#0f0f1a] border border-[#2a2a3e] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent placeholder-[#6a6a6a]"
+              className="w-full px-3 py-2 bg-background border border-border text-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-text-secondary"
               placeholder="e.g., In Review, Testing, Blocked"
               autoFocus
               required
@@ -68,13 +68,13 @@ export default function ColumnModal({ isOpen, onClose, onSave, existingTitle }: 
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-[#2a2a3e] text-white rounded-md hover:bg-[#2a2a3e] transition-colors"
+              className="flex-1 px-4 py-2 border border-border text-text-primary rounded-md hover:bg-surface-muted transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] hover:from-[#60a5fa] hover:to-[#a78bfa] text-white font-medium rounded-md transition-all shadow-lg shadow-blue-500/20"
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-primary to-accent-purple hover:from-primary-hover hover:to-accent-purple text-white font-medium rounded-md transition-all shadow-lg"
             >
               {existingTitle ? "Update" : "Add"} Column
             </button>
