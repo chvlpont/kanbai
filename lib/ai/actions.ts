@@ -27,6 +27,8 @@ export async function executeAction(
         return await deleteColumn(action.payload)
       case 'cleanup_done_tasks':
         return await cleanupDoneTasks(action.payload, boardId)
+      case 'assign_task':
+        return await assignTask(action.payload)
       default:
         return {
           success: false,
@@ -167,6 +169,29 @@ async function deleteTask(payload: { taskId: string }): Promise<ActionResult> {
   }
 
   return { success: true }
+}
+
+async function assignTask(payload: {
+  taskId: string
+  userIds: string[]
+}): Promise<ActionResult> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({
+      assigned_user_ids: payload.userIds,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', payload.taskId)
+    .select()
+    .single()
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true, data }
 }
 
 // ============================================================================

@@ -42,6 +42,11 @@ export const CleanupDoneTasksPayload = z.object({
   columnTitle: z.string().default('Done'),
 })
 
+export const AssignTaskPayload = z.object({
+  taskId: z.string().uuid(),
+  userIds: z.array(z.string().uuid()),
+})
+
 // ============================================================================
 // ACTIONS
 // ============================================================================
@@ -78,6 +83,10 @@ export const Action = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('cleanup_done_tasks'),
     payload: CleanupDoneTasksPayload,
+  }),
+  z.object({
+    type: z.literal('assign_task'),
+    payload: AssignTaskPayload,
   }),
 ])
 

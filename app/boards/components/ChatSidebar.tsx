@@ -11,12 +11,14 @@ interface ChatSidebarProps {
   boardId: string;
   isOpen: boolean;
   onClose: () => void;
+  onAIActionComplete?: () => void;
 }
 
 export default function ChatSidebar({
   boardId,
   isOpen,
   onClose,
+  onAIActionComplete,
 }: ChatSidebarProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -199,6 +201,16 @@ export default function ChatSidebar({
           }
           return [...prev, data.savedMessage];
         });
+      }
+
+      // Notify parent component that AI actions completed (so it can refetch board data)
+      if (data.actionResults && data.actionResults.length > 0) {
+        const hasSuccessfulActions = data.actionResults.some(
+          (result: any) => result.success
+        );
+        if (hasSuccessfulActions && onAIActionComplete) {
+          onAIActionComplete();
+        }
       }
     } catch (error) {
       console.error("Error:", error);

@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
               title,
               description,
               position,
+              assigned_user_ids,
               created_at
             )
           )
@@ -77,12 +78,45 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Fetch board members (for assignment feature)
+    const { data: membersData } = await supabase
+      .from("board_members")
+      .select("user_id")
+      .eq("board_id", boardId);
+
+    // Combine owner and members
+    const allUserIds = new Set<string>();
+    if (isOwner || isMember) {
+      allUserIds.add(user.id); // Add current user
+    }
+    if (board.user_id) {
+      allUserIds.add(board.user_id); // Add owner
+    }
+    if (membersData) {
+      membersData.forEach((m) => allUserIds.add(m.user_id));
+    }
+
+    // Fetch usernames from profiles table (consistent with board page)
+    const members: { id: string; username: string }[] = [];
+    if (allUserIds.size > 0) {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, username")
+        .in("id", Array.from(allUserIds));
+
+      if (profiles) {
+        members.push(...profiles);
+      }
+    }
+
     // 4. Get system prompt with board context
-    const systemPrompt = getSystemPrompt(board);
+    const systemPrompt = getSystemPrompt(board, members, user.id);
 
     // 5. Call Groq AI
     console.log("[AI] Calling Groq with model:", AI_MODEL);
     console.log("[AI] User message:", message);
+    console.log("[AI] Current user ID:", user.id);
+    console.log("[AI] Board members available:", members);
 
     const completion = await groq.chat.completions.create({
       model: AI_MODEL,
@@ -90,7 +124,7 @@ export async function POST(req: NextRequest) {
         { role: "system", content: systemPrompt },
         { role: "user", content: message },
       ],
-      temperature: 0.7,
+      temperature: 0.3, // Lower temperature for more consistent/deterministic responses
       max_tokens: 1000,
       response_format: { type: "json_object" },
     });
