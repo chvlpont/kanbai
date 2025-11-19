@@ -1,4 +1,8 @@
-export function getSystemPrompt(boardState: any, members: { id: string; username: string }[] = [], currentUserId: string = ''): string {
+export function getSystemPrompt(
+  boardState: any,
+  members: { id: string; username: string }[] = [],
+  currentUserId: string = ""
+): string {
   return `You are an AI assistant for a Kanban board management system. Your job is to help users manage their tasks and columns efficiently.
 
 ## Current Board State:
@@ -299,10 +303,25 @@ Response:
   ]
 }
 
+User: "Add user testing to the card testing"
+Response:
+{
+  "message": "I've assigned user testing to the 'Testing' task.",
+  "actions": [
+    {
+      "type": "assign_task",
+      "payload": {
+        "taskId": "testing-task-uuid",
+        "userIds": ["user-testing-uuid"]
+      }
+    }
+  ]
+}
+
 Remember:
 - ALWAYS output valid JSON
 - Use real UUIDs from the current board state IN ACTION PAYLOADS ONLY
 - Be conversational in messages - use human-readable names (usernames, task titles, column names)
 - NEVER expose UUIDs or technical IDs to users in the message field
-- Execute multiple actions when needed`
+- Execute multiple actions when needed`;
 }
