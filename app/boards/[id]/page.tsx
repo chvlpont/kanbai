@@ -928,7 +928,6 @@ export default function BoardPage({
         onClose={() => setIsTaskModalOpen(false)}
         onSave={handleSaveTask}
         task={editingTask}
-        defaultStatus={defaultStatus}
       />
 
       {/* Column Modal */}
