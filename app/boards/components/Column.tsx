@@ -60,10 +60,10 @@ export default function Column({
     <div
       ref={setSortableNodeRef}
       style={style}
-      className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3e] shadow-sm shadow-blue-500/5 p-3 sm:p-4 flex flex-col"
+      className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3e]/50 shadow-sm p-3 sm:p-4 flex flex-col"
     >
-      {/* Column Header */}
-      <div className="pb-2 sm:pb-3 mb-2 sm:mb-3 border-b border-[#2a2a3e]">
+      {/* Column Header with subtle gradient */}
+      <div className="pb-2 sm:pb-3 mb-2 sm:mb-3 border-b border-[#2a2a3e]/30 bg-gradient-to-br from-[#1a1a2e] to-[#1e293b] rounded-t-lg -mx-3 sm:-mx-4 -mt-3 sm:-mt-4 px-3 sm:px-4 pt-3 sm:pt-4">
         <div className="flex justify-between items-center mb-1.5 sm:mb-2">
           <div className="flex items-center gap-1.5 sm:gap-2 flex-1">
             <button

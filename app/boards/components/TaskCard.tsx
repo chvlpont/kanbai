@@ -63,6 +63,7 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    boxShadow: isDragging ? '0 0 30px rgba(59, 130, 246, 0.15)' : undefined,
   };
 
   return (
@@ -80,7 +81,7 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
         opacity: { duration: 0.2 },
         scale: { duration: 0.2 },
       }}
-      className="group bg-[#0f0f1a] rounded-lg p-2.5 sm:p-3 shadow-sm border border-[#2a2a3e] hover:border-[#3b82f6] hover:shadow-md hover:shadow-blue-500/20 transition-all cursor-grab active:cursor-grabbing touch-none relative"
+      className="group bg-[#0f0f1a] rounded-xl p-2.5 sm:p-3 shadow-sm border border-[#2a2a3e]/50 hover:border-[#3b82f6]/30 hover:shadow-[0_0_20px_rgba(59,130,246,0.08)] transition-all duration-200 cursor-grab active:cursor-grabbing touch-none relative"
     >
       <div className="flex justify-between items-start gap-2">
         <h3 className="font-medium text-white text-sm leading-snug flex-1">
@@ -177,17 +178,27 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
         </p>
       )}
       {assignedMembers.length > 0 && (
-        <div className="mt-2 flex items-center gap-2">
-          {/* Assigned Member Avatars */}
-          {assignedMembers.map((member) => (
-            <div
-              key={member.id}
-              className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center"
-              title={`Assigned to ${member.username}`}
-            >
-              <span className="text-white text-xs font-semibold uppercase">
-                {member.username.charAt(0)}
-              </span>
+        <div className="mt-2 flex items-center gap-1.5">
+          {/* Assigned Member Avatars with colored accent dots */}
+          {assignedMembers.map((member, index) => (
+            <div key={member.id} className="relative group/avatar">
+              <div
+                className="w-7 h-7 rounded-full bg-[#1a1a2e] border-2 border-[#2a2a3e] flex items-center justify-center relative overflow-hidden"
+                title={`Assigned to ${member.username}`}
+              >
+                <span className="text-white text-xs font-medium uppercase relative z-10">
+                  {member.username.charAt(0)}
+                </span>
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-500/20 opacity-0 group-hover/avatar:opacity-100 transition-opacity"></div>
+              </div>
+              {/* Colored accent dot */}
+              <div
+                className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[#0f0f1a]"
+                style={{
+                  backgroundColor: `hsl(${(index * 137.5) % 360}, 70%, 60%)`
+                }}
+              ></div>
             </div>
           ))}
         </div>
