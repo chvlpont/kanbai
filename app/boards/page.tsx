@@ -5,14 +5,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { MoreVertical, Trash2, LogOut } from "lucide-react";
+import { MoreVertical, Trash2, LogOut, Sun, Moon } from "lucide-react";
 import ConfirmDialog from "@/app/components/ConfirmDialog";
 import JoinBoardModal from "@/app/components/JoinBoardModal";
 import CreateBoardModal from "@/app/components/CreateBoardModal";
+import { useTheme } from "@/app/components/ThemeProvider";
 
 export default function BoardsPage() {
   const router = useRouter();
   const supabase = createClient();
+  const { theme, toggleTheme } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [username, setUsername] = useState("");
   const [boards, setBoards] = useState<any[]>([]);
@@ -176,38 +178,49 @@ export default function BoardsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#1a1a2e] flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-text-primary">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#1a1a2e]">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-[#2a2a3e]/50 sticky top-0 z-50 shadow-lg shadow-black/20">
+      <nav className="bg-surface/95 backdrop-blur-xl border-b border-border sticky top-0 z-50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link
               href="/"
-              className="font-bold text-2xl tracking-tight hover:scale-105 transition-transform"
+              className="font-bold text-2xl tracking-tight hover:scale-105 transition-transform text-text-primary"
             >
               Kanb
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">
                 ai
               </span>
             </Link>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 px-4 py-2 bg-[#1a1a2e]/50 rounded-full border border-[#2a2a3e]/50">
-                <div className="w-2 h-2 bg-green-500 rounded-full shadow-sm shadow-green-500/50"></div>
-                <span className="text-white text-sm font-semibold">
+              <div className="flex items-center gap-3 px-4 py-2 bg-surface-muted rounded-full border border-border">
+                <div className="w-2 h-2 bg-accent-green rounded-full shadow-sm shadow-accent-green/50"></div>
+                <span className="text-text-primary text-sm font-semibold">
                   {username}
                 </span>
               </div>
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all border border-transparent hover:border-border"
+                aria-label="Toggle theme"
+              >
+                {theme === "light" ? (
+                  <Moon className="w-5 h-5" />
+                ) : (
+                  <Sun className="w-5 h-5" />
+                )}
+              </button>
               <form action={handleSignOut}>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-[#9ca3af] hover:text-white font-medium transition-all hover:bg-[#1a1a2e]/50 rounded-lg border border-transparent hover:border-[#2a2a3e]/50"
+                  className="px-5 py-2 text-text-secondary hover:text-text-primary font-medium transition-all hover:bg-surface-muted rounded-lg border border-transparent hover:border-border"
                 >
                   Sign Out
                 </button>
@@ -221,20 +234,20 @@ export default function BoardsPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
           <div>
-            <h1 className="text-5xl font-bold text-white mb-2 bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold text-text-primary mb-2">
               My Boards
             </h1>
-            <p className="text-[#9ca3af] text-lg">
+            <p className="text-text-secondary text-lg">
               Manage and organize your kanban boards
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="group px-6 py-3 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-blue-500/50 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/20 flex items-center gap-2"
+              className="group px-6 py-3 bg-surface hover:bg-surface-muted border border-border hover:border-primary text-text-primary font-semibold rounded-xl transition-all flex items-center gap-2"
             >
               <svg
-                className="w-5 h-5 text-blue-400 transition-transform group-hover:rotate-90"
+                className="w-5 h-5 text-primary transition-transform group-hover:rotate-90"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -250,10 +263,10 @@ export default function BoardsPage() {
             </button>
             <button
               onClick={() => setIsJoinModalOpen(true)}
-              className="group px-6 py-3 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-green-500/50 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-green-500/20 flex items-center gap-2"
+              className="group px-6 py-3 bg-surface hover:bg-surface-muted border border-border hover:border-accent-green text-text-primary font-semibold rounded-xl transition-all flex items-center gap-2"
             >
               <svg
-                className="w-5 h-5 text-green-400 transition-transform group-hover:translate-x-1"
+                className="w-5 h-5 text-accent-green transition-transform group-hover:translate-x-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -276,11 +289,11 @@ export default function BoardsPage() {
               <Link
                 key={board.id}
                 href={`/boards/${board.id}`}
-                className="group relative bg-gradient-to-br from-[#1a1a2e] to-[#15152a] rounded-2xl border border-[#2a2a3e]/50 p-6 hover:border-[#3b82f6]/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 overflow-visible"
+                className="group relative bg-surface rounded-2xl border border-border p-6 hover:border-primary transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-visible"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Card Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent-purple/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
 
                 {/* Three-dots Menu */}
                 <div className="absolute top-4 right-4 z-[100]">
@@ -290,16 +303,16 @@ export default function BoardsPage() {
                       e.stopPropagation();
                       setOpenMenuId(openMenuId === board.id ? null : board.id);
                     }}
-                    className="p-2 hover:bg-[#2a2a3e]/50 rounded-lg transition-colors"
+                    className="p-2 hover:bg-surface-muted rounded-lg transition-colors"
                   >
-                    <MoreVertical className="w-4 h-4 text-[#9ca3af]" />
+                    <MoreVertical className="w-4 h-4 text-text-secondary" />
                   </button>
 
                   {openMenuId === board.id && (
                     <>
                       {/* Dropdown */}
                       <div
-                        className="absolute right-0 bottom-full mb-2 w-40 bg-[#1a1a2e] border border-[#2a2a3e]/50 rounded-xl shadow-xl shadow-black/20 overflow-visible"
+                        className="absolute right-0 bottom-full mb-2 w-40 bg-surface border border-border rounded-xl shadow-xl overflow-visible"
                         style={{ zIndex: 9999 }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -335,9 +348,9 @@ export default function BoardsPage() {
 
                 <div className="relative z-10">
                   {/* Board Icon */}
-                  <div className="w-12 h-12 mb-4 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 mb-4 bg-gradient-to-br from-primary/20 to-accent-purple/20 rounded-xl flex items-center justify-center border border-primary/20 group-hover:scale-110 transition-transform duration-300">
                     <svg
-                      className="w-6 h-6 text-blue-400"
+                      className="w-6 h-6 text-primary"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -351,11 +364,11 @@ export default function BoardsPage() {
                     </svg>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-300 transition-colors line-clamp-2">
+                  <h3 className="text-xl font-bold text-text-primary mb-3 group-hover:text-primary transition-colors line-clamp-2">
                     {board.title}
                   </h3>
 
-                  <div className="flex items-center gap-2 text-[#9ca3af] text-sm">
+                  <div className="flex items-center gap-2 text-text-secondary text-sm">
                     <svg
                       className="w-4 h-4"
                       fill="none"
@@ -376,7 +389,7 @@ export default function BoardsPage() {
                 </div>
 
                 {/* Hover Indicator */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80%] h-1 bg-gradient-to-r from-primary to-accent-purple transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full"></div>
               </Link>
             ))}
           </div>
@@ -384,9 +397,9 @@ export default function BoardsPage() {
           <div className="text-center py-20">
             <div className="max-w-md mx-auto">
               {/* Empty State Illustration */}
-              <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full flex items-center justify-center border border-blue-500/20 backdrop-blur-sm">
+              <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-primary/10 to-accent-purple/10 rounded-full flex items-center justify-center border border-primary/20 backdrop-blur-sm">
                 <svg
-                  className="w-16 h-16 text-blue-400/50"
+                  className="w-16 h-16 text-primary/50"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -400,19 +413,19 @@ export default function BoardsPage() {
                 </svg>
               </div>
 
-              <h3 className="text-2xl font-bold text-white mb-3">
+              <h3 className="text-2xl font-bold text-text-primary mb-3">
                 No boards yet
               </h3>
-              <p className="text-[#9ca3af] mb-8 text-lg">
+              <p className="text-text-secondary mb-8 text-lg">
                 Create your first board to start organizing your tasks
               </p>
 
-              <Link
-                href="/boards/new"
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-blue-500/50 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/20"
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-surface hover:bg-surface-muted border border-border hover:border-primary text-text-primary font-semibold rounded-xl transition-all"
               >
                 <svg
-                  className="w-5 h-5 text-blue-400 transition-transform group-hover:rotate-90"
+                  className="w-5 h-5 text-primary transition-transform group-hover:rotate-90"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -425,7 +438,7 @@ export default function BoardsPage() {
                   />
                 </svg>
                 Create Your First Board
-              </Link>
+              </button>
             </div>
           </div>
         )}
