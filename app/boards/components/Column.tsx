@@ -19,6 +19,8 @@ interface ColumnProps {
   onDeleteColumn: (columnId: string) => void;
   onEditColumn: (columnId: string) => void;
   isDraggingColumn?: boolean;
+  members?: { id: string; username: string }[];
+  onAssignMembers?: (taskId: string, memberIds: string[]) => void;
 }
 
 export default function Column({
@@ -29,6 +31,8 @@ export default function Column({
   onDeleteColumn,
   onEditColumn,
   isDraggingColumn,
+  members = [],
+  onAssignMembers,
 }: ColumnProps) {
   const { setNodeRef: setDroppableNodeRef } = useDroppable({
     id: column.id,
@@ -165,6 +169,8 @@ export default function Column({
                 task={task}
                 onEdit={onEditTask}
                 onDelete={onDeleteTask}
+                members={members}
+                onAssignMembers={onAssignMembers}
               />
             ))}
           </AnimatePresence>

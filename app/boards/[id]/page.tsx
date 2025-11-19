@@ -420,6 +420,37 @@ export default function BoardPage({
     }
   };
 
+  const handleAssignMembers = async (taskId: string, memberIds: string[]) => {
+    const supabase = createClient();
+
+    const { error } = await supabase
+      .from("tasks")
+      .update({
+        assigned_user_ids: memberIds,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", taskId);
+
+    if (error) {
+      console.error("Error assigning members:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+      toast.error(`Failed to assign members: ${error.message || 'Unknown error'}`);
+      return;
+    }
+
+    // Update local state
+    setColumns((prevColumns) =>
+      prevColumns.map((column) => ({
+        ...column,
+        tasks: column.tasks.map((task) =>
+          task.id === taskId
+            ? { ...task, assigned_user_ids: memberIds }
+            : task
+        ),
+      }))
+    );
+  };
+
   const handleAddColumn = () => {
     setEditingColumnId(undefined);
     setIsColumnModalOpen(true);
@@ -890,6 +921,8 @@ export default function BoardPage({
                     onDeleteTask={handleDeleteTask}
                     onDeleteColumn={handleDeleteColumn}
                     onEditColumn={handleEditColumn}
+                    members={members}
+                    onAssignMembers={handleAssignMembers}
                   />
                 </div>
               ))}
@@ -903,6 +936,7 @@ export default function BoardPage({
                   task={activeTask}
                   onEdit={() => {}}
                   onDelete={() => {}}
+                  members={members}
                 />
               </div>
             ) : activeColumn ? (
@@ -915,6 +949,7 @@ export default function BoardPage({
                   onDeleteColumn={() => {}}
                   onEditColumn={() => {}}
                   isDraggingColumn={false}
+                  members={members}
                 />
               </div>
             ) : null}

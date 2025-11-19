@@ -4,14 +4,20 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion } from "framer-motion";
 import { Task } from "../types";
+import { useState, useRef, useEffect } from "react";
 
 interface TaskCardProps {
   task: Task;
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
+  members?: { id: string; username: string }[];
+  onAssignMembers?: (taskId: string, memberIds: string[]) => void;
 }
 
-export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
+export default function TaskCard({ task, onEdit, onDelete, members = [], onAssignMembers }: TaskCardProps) {
+  const [showAssignMenu, setShowAssignMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const {
     attributes,
     listeners,
@@ -20,6 +26,38 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
     transition,
     isDragging,
   } = useSortable({ id: task.id });
+
+  const assignedMembers = members.filter(m =>
+    task.assigned_user_ids?.includes(m.id)
+  );
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowAssignMenu(false);
+      }
+    };
+
+    if (showAssignMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showAssignMenu]);
+
+  const toggleMemberAssignment = (memberId: string) => {
+    if (!onAssignMembers) return;
+
+    const currentIds = task.assigned_user_ids || [];
+    const newIds = currentIds.includes(memberId)
+      ? currentIds.filter(id => id !== memberId)
+      : [...currentIds, memberId];
+
+    onAssignMembers(task.id, newIds);
+  };
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -42,13 +80,25 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
         opacity: { duration: 0.2 },
         scale: { duration: 0.2 },
       }}
-      className="group bg-[#0f0f1a] rounded-lg p-2.5 sm:p-3 shadow-sm border border-[#2a2a3e] hover:border-[#3b82f6] hover:shadow-md hover:shadow-blue-500/20 transition-all cursor-grab active:cursor-grabbing touch-none"
+      className="group bg-[#0f0f1a] rounded-lg p-2.5 sm:p-3 shadow-sm border border-[#2a2a3e] hover:border-[#3b82f6] hover:shadow-md hover:shadow-blue-500/20 transition-all cursor-grab active:cursor-grabbing touch-none relative"
     >
       <div className="flex justify-between items-start gap-2">
-        <h3 className="font-medium text-white text-sm flex-1 leading-snug">
+        <h3 className="font-medium text-white text-sm leading-snug flex-1">
           {task.title}
         </h3>
-        <div className="flex gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
+        <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowAssignMenu(!showAssignMenu);
+            }}
+            className="text-[#9ca3af] hover:text-purple-400 hover:bg-purple-400/10 p-1 rounded transition-colors"
+            title="Assign member"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -75,10 +125,72 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
           </button>
         </div>
       </div>
+
+      {/* Member Selection Menu - positioned relative to card */}
+      {showAssignMenu && members.length > 0 && (
+        <div ref={menuRef} className="absolute right-2 top-10 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg shadow-xl shadow-black/20 z-50 min-w-[160px] py-1">
+          <div className="px-3 py-1.5 text-xs text-purple-400 font-semibold uppercase tracking-wide border-b border-[#2a2a3e]">
+            Assign Members
+          </div>
+          {members.map((member) => {
+            const isAssigned = task.assigned_user_ids?.includes(member.id);
+            return (
+              <button
+                key={member.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMemberAssignment(member.id);
+                }}
+                className="w-full px-3 py-2 text-left text-sm text-white hover:bg-[#2a2a3e] transition-colors flex items-center gap-2"
+              >
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                  isAssigned
+                    ? 'bg-blue-400 border-blue-400'
+                    : 'border-[#2a2a3e]'
+                }`}>
+                  {isAssigned && (
+                    <svg
+                      className="w-3 h-3 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </div>
+                <span>{member.username}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {task.description && (
-        <p className="text-xs text-[#9ca3af] mt-1.5 sm:mt-2 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-[#9ca3af] mt-1.5 sm:mt-2 leading-relaxed">
           {task.description}
         </p>
+      )}
+      {assignedMembers.length > 0 && (
+        <div className="mt-2 flex items-center gap-2">
+          {/* Assigned Member Avatars */}
+          {assignedMembers.map((member) => (
+            <div
+              key={member.id}
+              className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center"
+              title={`Assigned to ${member.username}`}
+            >
+              <span className="text-white text-xs font-semibold uppercase">
+                {member.username.charAt(0)}
+              </span>
+            </div>
+          ))}
+        </div>
       )}
     </motion.div>
   );

@@ -7,6 +7,7 @@ export interface Task {
   description?: string;
   position: number;
   status?: TaskStatus; // For compatibility with old code
+  assigned_user_ids?: string[]; // Array of user IDs
   created_at: string;
   updated_at: string;
 }
