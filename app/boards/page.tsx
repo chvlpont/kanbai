@@ -10,6 +10,7 @@ import ConfirmDialog from "@/app/components/ConfirmDialog";
 import JoinBoardModal from "@/app/components/JoinBoardModal";
 import CreateBoardModal from "@/app/components/CreateBoardModal";
 import { useTheme } from "@/app/components/ThemeProvider";
+import Loader from "@/app/components/Loader";
 
 export default function BoardsPage() {
   const router = useRouter();
@@ -177,11 +178,7 @@ export default function BoardsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-text-primary">Loading...</div>
-      </div>
-    );
+    return <Loader />;
   }
 
   return (
