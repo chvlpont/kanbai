@@ -1,18 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Task, TaskStatus } from "../types";
+import { Task } from "../types";
 
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (task: {
-    title: string;
-    description: string;
-    status?: TaskStatus;
-  }) => void;
+  onSave: (task: { title: string; description: string }) => void;
   task?: Task;
-  defaultStatus?: TaskStatus;
 }
 
 export default function TaskModal({
@@ -20,23 +15,19 @@ export default function TaskModal({
   onClose,
   onSave,
   task,
-  defaultStatus,
 }: TaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState<TaskStatus>(defaultStatus || "todo");
 
   useEffect(() => {
     if (task) {
       setTitle(task.title);
       setDescription(task.description || "");
-      setStatus(task.status || task.column_id || defaultStatus || "");
     } else {
       setTitle("");
       setDescription("");
-      setStatus(defaultStatus || "");
     }
-  }, [task, defaultStatus]);
+  }, [task]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +36,6 @@ export default function TaskModal({
     onSave({
       title: title.trim(),
       description: description.trim(),
-      status,
     });
 
     setTitle("");
@@ -121,26 +111,6 @@ export default function TaskModal({
               placeholder="Add more details..."
               rows={4}
             />
-          </div>
-
-          {/* Status Select */}
-          <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-white mb-2"
-            >
-              Status
-            </label>
-            <select
-              id="status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value as TaskStatus)}
-              className="w-full px-3 py-2 bg-[#0f0f1a] border border-[#2a2a3e] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent"
-            >
-              <option value="todo">To Do</option>
-              <option value="in-progress">In Progress</option>
-              <option value="done">Done</option>
-            </select>
           </div>
 
           {/* Action Buttons */}
