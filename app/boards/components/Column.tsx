@@ -60,16 +60,16 @@ export default function Column({
     <div
       ref={setSortableNodeRef}
       style={style}
-      className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3e]/50 shadow-sm p-3 sm:p-4 flex flex-col"
+      className="bg-surface rounded-xl border border-border shadow-sm p-3 sm:p-4 flex flex-col"
     >
       {/* Column Header with subtle gradient */}
-      <div className="pb-2 sm:pb-3 mb-2 sm:mb-3 border-b border-[#2a2a3e]/30 bg-gradient-to-br from-[#1a1a2e] to-[#1e293b] rounded-t-lg -mx-3 sm:-mx-4 -mt-3 sm:-mt-4 px-3 sm:px-4 pt-3 sm:pt-4">
+      <div className="pb-2 sm:pb-3 mb-2 sm:mb-3 border-b border-border bg-gradient-to-br from-[var(--column-from)] to-[var(--column-to)] rounded-t-lg -mx-3 sm:-mx-4 -mt-3 sm:-mt-4 px-3 sm:px-4 pt-3 sm:pt-4">
         <div className="flex justify-between items-center mb-1.5 sm:mb-2">
           <div className="flex items-center gap-1.5 sm:gap-2 flex-1">
             <button
               {...attributes}
               {...listeners}
-              className="text-[#9ca3af] hover:text-white cursor-grab active:cursor-grabbing transition-colors touch-none"
+              className="text-text-secondary hover:text-text-primary cursor-grab active:cursor-grabbing transition-colors touch-none"
               title="Drag to reorder column"
             >
               <svg
@@ -86,10 +86,10 @@ export default function Column({
                 />
               </svg>
             </button>
-            <h2 className="font-semibold text-white text-sm sm:text-base flex-1 truncate">
+            <h2 className="font-semibold text-text-primary text-sm sm:text-base flex-1 truncate">
               {column.title}
             </h2>
-            <span className="px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-[#3b82f6]/20 to-[#8b5cf6]/20 text-[#60a5fa] text-xs font-medium rounded-full flex-shrink-0">
+            <span className="px-1.5 sm:px-2 py-0.5 bg-primary-bg text-primary text-xs font-medium rounded-full flex-shrink-0">
               {column.tasks.length}
             </span>
           </div>
@@ -98,7 +98,7 @@ export default function Column({
         <div className="flex items-center gap-1">
           <button
             onClick={() => onEditColumn(column.id)}
-            className="text-[#9ca3af] hover:text-[#60a5fa] hover:bg-[#3b82f6]/10 transition-colors p-1.5 rounded-md"
+            className="text-text-secondary hover:text-primary hover:bg-primary/10 transition-colors p-1.5 rounded-md"
             title="Edit column"
           >
             <svg
@@ -117,7 +117,7 @@ export default function Column({
           </button>
           <button
             onClick={() => onDeleteColumn(column.id)}
-            className="text-[#9ca3af] hover:text-red-400 hover:bg-red-500/10 transition-colors p-1.5 rounded-md"
+            className="text-text-secondary hover:text-red-400 hover:bg-red-500/10 transition-colors p-1.5 rounded-md"
             title="Delete column"
           >
             <svg
@@ -136,7 +136,7 @@ export default function Column({
           </button>
           <button
             onClick={() => onAddTask(column.id)}
-            className="text-[#9ca3af] hover:text-[#60a5fa] hover:bg-[#3b82f6]/10 transition-colors p-1.5 rounded-md"
+            className="text-text-secondary hover:text-primary hover:bg-primary/10 transition-colors p-1.5 rounded-md"
             title="Add task"
           >
             <svg
@@ -180,7 +180,7 @@ export default function Column({
       {/* Add Task Button */}
       <button
         onClick={() => onAddTask(column.id)}
-        className="w-full py-2 text-sm text-[#9ca3af] hover:bg-[#2a2a3e] hover:text-white rounded-lg transition-colors flex items-center justify-center gap-1.5 border border-dashed border-[#2a2a3e] hover:border-[#3b82f6]"
+        className="w-full py-2 text-sm text-text-secondary hover:bg-surface-muted hover:text-text-primary rounded-lg transition-colors flex items-center justify-center gap-1.5 border border-dashed border-border hover:border-primary"
       >
         <svg
           className="w-4 h-4"

@@ -227,42 +227,42 @@ export default function ChatSidebar({
   return (
     <>
       {/* Sidebar */}
-      <div className="fixed right-0 top-0 h-full w-full sm:w-96 bg-gradient-to-b from-[#0f0f1a] to-[#1a1a2e] border-l border-[#2a2a3e]/50 flex flex-col z-50 backdrop-blur-xl">
+      <div className="fixed right-0 top-0 h-full w-full sm:w-96 bg-surface border-l border-border flex flex-col z-50 backdrop-blur-xl shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-[#2a2a3e]/50 bg-[#0a0a0f]/80 backdrop-blur-xl">
+        <div className="flex items-center justify-between p-4 border-b border-border bg-surface-muted backdrop-blur-xl">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-purple-400" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple/20 to-primary/20 border border-accent-purple/30 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-accent-purple" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">AI Assistant</h2>
-              <p className="text-xs text-purple-300/70">Shared board chat</p>
+              <h2 className="text-base font-bold text-text-primary">AI Assistant</h2>
+              <p className="text-xs text-text-secondary">Shared board chat</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-[#9ca3af] hover:text-white hover:bg-[#1a1a2e]/50 rounded-lg transition-all border border-transparent hover:border-[#2a2a3e]/50"
+            className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all border border-transparent hover:border-border"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto bg-background">
           {messages.length === 0 && !isLoading && (
             <div className="h-full flex flex-col items-center justify-center text-center p-6">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 flex items-center justify-center mb-6">
-                <Sparkles className="w-10 h-10 text-purple-400" />
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent-purple/20 to-primary/20 border border-accent-purple/30 flex items-center justify-center mb-6">
+                <Sparkles className="w-10 h-10 text-accent-purple" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">
+              <h3 className="text-xl font-bold text-text-primary mb-2">
                 Start Chatting
               </h3>
-              <p className="text-sm text-[#9ca3af] mb-8">
+              <p className="text-sm text-text-secondary mb-8">
                 Ask the AI anything about your board
               </p>
 
               <div className="w-full max-w-xs space-y-3 text-left">
-                <p className="text-xs text-purple-400/70 font-semibold uppercase tracking-wide">
+                <p className="text-xs text-accent-purple font-semibold uppercase tracking-wide">
                   Try asking:
                 </p>
                 <div className="space-y-2">
@@ -275,7 +275,7 @@ export default function ChatSidebar({
                     <button
                       key={i}
                       onClick={() => setInput(example)}
-                      className="w-full text-left px-4 py-3 rounded-xl bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-purple-500/50 text-sm text-white transition-all hover:shadow-lg hover:shadow-purple-500/20"
+                      className="w-full text-left px-4 py-3 rounded-xl bg-surface hover:bg-surface-muted border border-border hover:border-accent-purple text-sm text-text-primary transition-all"
                     >
                       "{example}"
                     </button>
@@ -302,8 +302,8 @@ export default function ChatSidebar({
           {isLoading && (
             <div className="px-4 py-2">
               <div className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
-                <span className="text-sm text-gray-400">AI is thinking...</span>
+                <Loader2 className="w-4 h-4 text-accent-purple animate-spin" />
+                <span className="text-sm text-text-secondary">AI is thinking...</span>
               </div>
             </div>
           )}
@@ -314,7 +314,7 @@ export default function ChatSidebar({
         {/* Input */}
         <form
           onSubmit={handleSubmit}
-          className="p-4 border-t border-[#2a2a3e]/50 bg-[#0a0a0f]/80 backdrop-blur-xl"
+          className="p-4 border-t border-border bg-surface-muted backdrop-blur-xl"
         >
           <div className="flex gap-2">
             <input
@@ -322,18 +322,18 @@ export default function ChatSidebar({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask AI anything..."
-              className="flex-1 bg-[#1a1a2e] border border-[#2a2a3e] hover:border-purple-500/30 focus:border-purple-500/50 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all"
+              className="flex-1 bg-surface border border-border hover:border-accent-purple/50 focus:border-accent-purple rounded-xl px-4 py-3 text-sm text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-accent-purple/20 transition-all"
               disabled={isLoading}
             />
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl px-4 py-3 transition-all hover:shadow-lg hover:shadow-purple-500/20 flex items-center justify-center min-w-[52px]"
+              className="bg-surface hover:bg-surface-muted border border-border hover:border-accent-purple disabled:opacity-50 disabled:cursor-not-allowed text-text-primary rounded-xl px-4 py-3 transition-all flex items-center justify-center min-w-[52px]"
             >
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
+                <Loader2 className="w-5 h-5 animate-spin text-accent-purple" />
               ) : (
-                <Send className="w-5 h-5 text-purple-400" />
+                <Send className="w-5 h-5 text-accent-purple" />
               )}
             </button>
           </div>

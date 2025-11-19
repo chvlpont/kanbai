@@ -30,9 +30,12 @@ import {
   MoreVertical,
   LayoutDashboard,
   Copy,
+  Sun,
+  Moon,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import ConfirmDialog from "@/app/components/ConfirmDialog";
+import { useTheme } from "@/app/components/ThemeProvider";
 
 export default function BoardPage({
   params,
@@ -40,6 +43,7 @@ export default function BoardPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const { theme, toggleTheme } = useTheme();
   const [columns, setColumns] = useState<ColumnType[]>([]);
   const [boardTitle, setBoardTitle] = useState<string>("Loading...");
   const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -677,25 +681,25 @@ export default function BoardPage({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#1a1a2e]">
+    <div className="min-h-screen bg-background">
       {/* Navigation Bar */}
-      <nav className="bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-[#2a2a3e]/50 sticky top-0 z-50 shadow-lg shadow-black/20">
+      <nav className="bg-surface/95 backdrop-blur-xl border-b border-border sticky top-0 z-50 shadow-lg">
         <div className="max-w-[1920px] mx-auto px-3 sm:px-4 lg:px-8">
           <div className="flex items-center h-14 sm:h-16">
             <div className="flex items-center gap-3 sm:gap-6 flex-1">
               <Link
                 href="/"
-                className="font-bold text-xl sm:text-2xl tracking-tight hover:scale-105 transition-transform"
+                className="font-bold text-xl sm:text-2xl tracking-tight hover:scale-105 transition-transform text-text-primary"
               >
                 Kanb
-                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">
                   ai
                 </span>
               </Link>
-              <div className="hidden sm:block h-6 w-px bg-[#2a2a3e]/50"></div>
+              <div className="hidden sm:block h-6 w-px bg-border"></div>
               <div className="hidden sm:flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-blue-400"
+                  className="w-5 h-5 text-primary"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -707,17 +711,17 @@ export default function BoardPage({
                     d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
                   />
                 </svg>
-                <h1 className="text-white font-semibold text-base sm:text-lg">
+                <h1 className="text-text-primary font-semibold text-base sm:text-lg">
                   {boardTitle}
                 </h1>
               </div>
               {members.length > 0 && (
                 <>
-                  <div className="hidden sm:block h-6 w-px bg-[#2a2a3e]/50"></div>
+                  <div className="hidden sm:block h-6 w-px bg-border"></div>
                   <div className="hidden sm:block relative group">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a2e]/50 rounded-full border border-[#2a2a3e]/50 cursor-default">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-muted rounded-full border border-border cursor-default">
                       <svg
-                        className="w-4 h-4 text-blue-400"
+                        className="w-4 h-4 text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -729,23 +733,23 @@ export default function BoardPage({
                           d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
                         />
                       </svg>
-                      <span className="text-sm text-[#9ca3af] font-medium">
+                      <span className="text-sm text-text-secondary font-medium">
                         {members.length}{" "}
                         {members.length === 1 ? "member" : "members"}
                       </span>
                     </div>
                     {/* Tooltip */}
-                    <div className="absolute left-0 top-full mt-2 w-48 bg-[#1a1a2e]/95 backdrop-blur-xl border border-[#2a2a3e]/50 rounded-xl shadow-xl shadow-black/20 p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      <p className="text-xs text-purple-400/70 font-semibold uppercase tracking-wide mb-2">
+                    <div className="absolute left-0 top-full mt-2 w-48 bg-surface/95 backdrop-blur-xl border border-border rounded-xl shadow-xl p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <p className="text-xs text-accent-purple font-semibold uppercase tracking-wide mb-2">
                         Board Members
                       </p>
                       <div className="space-y-1">
                         {members.map((member) => (
                           <div
                             key={member.id}
-                            className="flex items-center gap-2 text-sm text-white"
+                            className="flex items-center gap-2 text-sm text-text-primary"
                           >
-                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                            <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                             <span>{member.username}</span>
                           </div>
                         ))}
@@ -754,8 +758,21 @@ export default function BoardPage({
                   </div>
                 </>
               )}
-              <div className="hidden sm:block h-6 w-px bg-[#2a2a3e]/50"></div>
+              <div className="hidden sm:block h-6 w-px bg-border"></div>
               <div className="flex items-center gap-2 sm:gap-3">
+                {/* Theme Toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all border border-transparent hover:border-border"
+                  aria-label="Toggle theme"
+                >
+                  {theme === "light" ? (
+                    <Moon className="w-5 h-5" />
+                  ) : (
+                    <Sun className="w-5 h-5" />
+                  )}
+                </button>
+
                 {/* Menu Dropdown */}
                 <div className="relative">
                   <button
@@ -763,7 +780,7 @@ export default function BoardPage({
                       e.stopPropagation();
                       setIsMenuOpen(!isMenuOpen);
                     }}
-                    className="p-2 text-[#9ca3af] hover:text-white hover:bg-[#1a1a2e]/50 rounded-lg transition-all border border-transparent hover:border-[#2a2a3e]/50"
+                    className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all border border-transparent hover:border-border"
                     aria-label="Menu"
                   >
                     <MoreVertical className="w-5 h-5" />
@@ -773,15 +790,15 @@ export default function BoardPage({
                     <>
                       {/* Dropdown */}
                       <div
-                        className="absolute right-0 mt-2 w-48 bg-[#1a1a2e] border border-[#2a2a3e]/50 rounded-xl shadow-xl shadow-black/20 z-20 backdrop-blur-xl"
+                        className="absolute right-0 mt-2 w-48 bg-surface border border-border rounded-xl shadow-xl z-20 backdrop-blur-xl"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Link
                           href="/boards"
                           onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-[#2a2a3e]/50 transition-colors first:rounded-t-xl"
+                          className="flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-surface-muted transition-colors first:rounded-t-xl"
                         >
-                          <LayoutDashboard className="w-4 h-4 text-blue-400" />
+                          <LayoutDashboard className="w-4 h-4 text-primary" />
                           Dashboard
                         </Link>
                         <button
@@ -859,9 +876,9 @@ export default function BoardPage({
                               toast.error("Failed to copy invite code");
                             }
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-[#2a2a3e]/50 transition-colors last:rounded-b-xl"
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-surface-muted transition-colors last:rounded-b-xl"
                         >
-                          <Copy className="w-4 h-4 text-green-400" />
+                          <Copy className="w-4 h-4 text-accent-green" />
                           Copy Invite Code
                         </button>
                       </div>
@@ -871,17 +888,17 @@ export default function BoardPage({
 
                 <button
                   onClick={() => setIsChatOpen(!isChatOpen)}
-                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-purple-500/50 text-white text-xs sm:text-sm font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/20 flex items-center gap-1 sm:gap-2"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-surface hover:bg-surface-muted border border-border hover:border-accent-purple text-text-primary text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center gap-1 sm:gap-2"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" />
+                  <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent-purple" />
                   <span className="hidden sm:inline">AI Assistant</span>
                 </button>
                 <button
                   onClick={handleAddColumn}
-                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-blue-500/50 text-white text-xs sm:text-sm font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/20 flex items-center gap-1 sm:gap-2"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-surface hover:bg-surface-muted border border-border hover:border-primary text-text-primary text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center gap-1 sm:gap-2"
                 >
                   <svg
-                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -988,9 +1005,9 @@ export default function BoardPage({
       {!isChatOpen && (
         <button
           onClick={() => setIsChatOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-[#1a1a2e] hover:bg-[#1f1f35] border border-[#2a2a3e] hover:border-purple-500/50 text-white rounded-full shadow-xl hover:shadow-purple-500/30 flex items-center justify-center transition-all hover:scale-110 z-30"
+          className="fixed bottom-6 right-6 w-14 h-14 bg-surface hover:bg-surface-muted border border-border hover:border-accent-purple text-text-primary rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-110 z-30"
         >
-          <Sparkles className="w-6 h-6 text-purple-400" />
+          <Sparkles className="w-6 h-6 text-accent-purple" />
         </button>
       )}
 

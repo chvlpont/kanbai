@@ -81,10 +81,10 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
         opacity: { duration: 0.2 },
         scale: { duration: 0.2 },
       }}
-      className="group bg-[#0f0f1a] rounded-xl p-2.5 sm:p-3 shadow-sm border border-[#2a2a3e]/50 hover:border-[#3b82f6]/30 hover:shadow-[0_0_20px_rgba(59,130,246,0.08)] transition-all duration-200 cursor-grab active:cursor-grabbing touch-none relative"
+      className="group bg-surface rounded-xl p-2.5 sm:p-3 shadow-sm border border-border hover:border-primary/50 transition-all duration-200 cursor-grab active:cursor-grabbing touch-none relative"
     >
       <div className="flex justify-between items-start gap-2">
-        <h3 className="font-medium text-white text-sm leading-snug flex-1">
+        <h3 className="font-medium text-text-primary text-sm leading-snug flex-1">
           {task.title}
         </h3>
         <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
@@ -93,7 +93,7 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
               e.stopPropagation();
               setShowAssignMenu(!showAssignMenu);
             }}
-            className="text-[#9ca3af] hover:text-purple-400 hover:bg-purple-400/10 p-1 rounded transition-colors"
+            className="text-text-secondary hover:text-accent-purple hover:bg-accent-purple/10 p-1 rounded transition-colors"
             title="Assign member"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +105,7 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
               e.stopPropagation();
               onEdit(task);
             }}
-            className="text-[#9ca3af] hover:text-[#60a5fa] hover:bg-[#3b82f6]/10 p-1 rounded transition-colors"
+            className="text-text-secondary hover:text-primary hover:bg-primary/10 p-1 rounded transition-colors"
             title="Edit task"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +117,7 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
               e.stopPropagation();
               onDelete(task.id);
             }}
-            className="text-[#9ca3af] hover:text-red-400 hover:bg-red-500/10 p-1 rounded transition-colors"
+            className="text-text-secondary hover:text-red-400 hover:bg-red-500/10 p-1 rounded transition-colors"
             title="Delete task"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,8 +129,8 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
 
       {/* Member Selection Menu - positioned relative to card */}
       {showAssignMenu && members.length > 0 && (
-        <div ref={menuRef} className="absolute right-2 top-10 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg shadow-xl shadow-black/20 z-50 min-w-[160px] py-1">
-          <div className="px-3 py-1.5 text-xs text-purple-400 font-semibold uppercase tracking-wide border-b border-[#2a2a3e]">
+        <div ref={menuRef} className="absolute right-2 top-10 bg-surface border border-border rounded-lg shadow-xl z-50 min-w-[160px] py-1">
+          <div className="px-3 py-1.5 text-xs text-accent-purple font-semibold uppercase tracking-wide border-b border-border">
             Assign Members
           </div>
           {members.map((member) => {
@@ -142,12 +142,12 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
                   e.stopPropagation();
                   toggleMemberAssignment(member.id);
                 }}
-                className="w-full px-3 py-2 text-left text-sm text-white hover:bg-[#2a2a3e] transition-colors flex items-center gap-2"
+                className="w-full px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-muted transition-colors flex items-center gap-2"
               >
                 <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
                   isAssigned
-                    ? 'bg-blue-400 border-blue-400'
-                    : 'border-[#2a2a3e]'
+                    ? 'bg-primary border-primary'
+                    : 'border-border'
                 }`}>
                   {isAssigned && (
                     <svg
@@ -173,7 +173,7 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
       )}
 
       {task.description && (
-        <p className="text-xs text-[#9ca3af] mt-1.5 sm:mt-2 leading-relaxed">
+        <p className="text-xs text-text-secondary mt-1.5 sm:mt-2 leading-relaxed">
           {task.description}
         </p>
       )}
@@ -183,18 +183,18 @@ export default function TaskCard({ task, onEdit, onDelete, members = [], onAssig
           {assignedMembers.map((member, index) => (
             <div key={member.id} className="relative group/avatar">
               <div
-                className="w-7 h-7 rounded-full bg-[#1a1a2e] border-2 border-[#2a2a3e] flex items-center justify-center relative overflow-hidden"
+                className="w-7 h-7 rounded-full bg-surface-muted border-2 border-border flex items-center justify-center relative overflow-hidden"
                 title={`Assigned to ${member.username}`}
               >
-                <span className="text-white text-xs font-medium uppercase relative z-10">
+                <span className="text-text-primary text-xs font-medium uppercase relative z-10">
                   {member.username.charAt(0)}
                 </span>
                 {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-500/20 opacity-0 group-hover/avatar:opacity-100 transition-opacity"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent-purple/20 opacity-0 group-hover/avatar:opacity-100 transition-opacity"></div>
               </div>
               {/* Colored accent dot */}
               <div
-                className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[#0f0f1a]"
+                className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background"
                 style={{
                   backgroundColor: `hsl(${(index * 137.5) % 360}, 70%, 60%)`
                 }}
