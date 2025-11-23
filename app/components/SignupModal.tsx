@@ -28,6 +28,38 @@ export default function SignupModal({
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validation
+    if (!username.trim()) {
+      toast.error("Username is required");
+      return;
+    }
+
+    if (username.length < 3) {
+      toast.error("Username must be at least 3 characters");
+      return;
+    }
+
+    if (!email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    if (!password.trim()) {
+      toast.error("Password is required");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
     setLoading(true);
 
     const { data, error } = await supabase.auth.signUp({
@@ -76,7 +108,9 @@ export default function SignupModal({
         <div className="relative bg-surface rounded-2xl border border-border overflow-hidden shadow-xl">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border">
-            <h2 className="text-2xl font-bold text-text-primary">Create Account</h2>
+            <h2 className="text-2xl font-bold text-text-primary">
+              Create Account
+            </h2>
             <button
               onClick={onClose}
               className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all"
@@ -97,7 +131,6 @@ export default function SignupModal({
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:border-primary transition-colors"
                 placeholder="Choose a username"
-                required
               />
             </div>
 
@@ -111,7 +144,6 @@ export default function SignupModal({
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:border-primary transition-colors"
                 placeholder="Enter your email"
-                required
               />
             </div>
 
@@ -125,8 +157,6 @@ export default function SignupModal({
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:border-primary transition-colors"
                 placeholder="Create a password"
-                required
-                minLength={6}
               />
             </div>
 

@@ -27,6 +27,23 @@ export default function LoginModal({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validation
+    if (!emailOrUsername.trim()) {
+      toast.error("Email or username is required");
+      return;
+    }
+
+    if (!password.trim()) {
+      toast.error("Password is required");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
     setLoading(true);
 
     let emailToUse = emailOrUsername;
@@ -77,7 +94,9 @@ export default function LoginModal({
         <div className="relative bg-surface rounded-2xl border border-border overflow-hidden shadow-xl">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border">
-            <h2 className="text-2xl font-bold text-text-primary">Welcome Back</h2>
+            <h2 className="text-2xl font-bold text-text-primary">
+              Welcome Back
+            </h2>
             <button
               onClick={onClose}
               className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all"
@@ -98,7 +117,6 @@ export default function LoginModal({
                 onChange={(e) => setEmailOrUsername(e.target.value)}
                 className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:border-primary transition-colors"
                 placeholder="Enter your email or username"
-                required
               />
             </div>
 
@@ -112,7 +130,6 @@ export default function LoginModal({
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text-primary placeholder-text-secondary focus:outline-none focus:border-primary transition-colors"
                 placeholder="Enter your password"
-                required
               />
             </div>
 
