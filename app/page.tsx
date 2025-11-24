@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Sparkles, Zap, Bot } from "lucide-react";
+import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import LoginModal from "@/app/components/LoginModal";
 import SignupModal from "@/app/components/SignupModal";
@@ -42,7 +43,7 @@ const HomePage = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={toggleTheme}
-                className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all border border-transparent hover:border-border"
+                className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all border border-transparent hover:border-border cursor-pointer"
                 aria-label="Toggle theme"
               >
                 {theme === "light" ? (
@@ -62,13 +63,13 @@ const HomePage = () => {
                 <>
                   <button
                     onClick={() => setIsLoginOpen(true)}
-                    className="px-4 py-2 text-text-secondary hover:text-text-primary font-medium transition-colors"
+                    className="px-4 py-2 text-text-secondary hover:text-text-primary font-medium transition-colors cursor-pointer"
                   >
                     Log in
                   </button>
                   <button
                     onClick={() => setIsSignupOpen(true)}
-                    className="px-5 py-2.5 bg-gradient-to-r from-primary to-accent-purple hover:from-primary-hover hover:to-accent-purple text-white font-medium rounded-md transition-all duration-300 shadow-lg"
+                    className="px-5 py-2.5 bg-gradient-to-r from-primary to-accent-purple hover:from-primary-hover hover:to-accent-purple text-white font-medium rounded-md transition-all duration-300 shadow-lg cursor-pointer"
                   >
                     Get started
                   </button>
@@ -80,39 +81,75 @@ const HomePage = () => {
       </nav>
 
       {/* Hero Section */}
-      <main className="flex-1 px-4 py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-4xl mx-auto mb-16">
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary mb-6 leading-tight">
-              Let AI manage your{" "}
-              <span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">
-                entire board
+      <main className="flex-1 px-4 py-12 sm:py-20 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center max-w-4xl mx-auto mb-12">
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full mb-6"
+            >
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">
+                Powered by AI
               </span>
-            </h1>
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-5xl sm:text-6xl lg:text-7xl font-bold text-text-primary mb-6 leading-[1.1] tracking-tight"
+            >
+              Manage tasks by
+              <br />
+              <span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">
+                chatting with AI
+              </span>
+            </motion.h1>
 
             {/* Subheadline */}
-            <p className="text-lg sm:text-xl text-text-secondary mb-8 max-w-2xl mx-auto leading-relaxed">
-              Just chat with AI to create tasks, move cards, organize columns, and manage your workflow.
-              Your AI assistant has full control. No clicking required.
-            </p>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl sm:text-2xl text-text-secondary mb-10 max-w-3xl mx-auto leading-relaxed font-light"
+            >
+              Say goodbye to endless clicking. Let AI handle your entire <span className="whitespace-nowrap">Kanban board.</span> Create, move, and organize tasks through simple conversation.
+            </motion.p>
 
             {/* CTA Buttons */}
-            <div className="flex justify-center items-center mb-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex justify-center items-center"
+            >
               <button
                 onClick={() => setIsSignupOpen(true)}
-                className="px-8 py-3.5 bg-gradient-to-r from-primary to-accent-purple hover:from-primary-hover hover:to-accent-purple text-white font-semibold rounded-md transition-all duration-300 shadow-lg text-base"
+                className="group relative px-8 py-4 bg-gradient-to-r from-primary to-accent-purple hover:from-primary-hover hover:to-accent-purple text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-lg cursor-pointer"
               >
-                Sign up - it's free!
+                <span className="relative z-10 flex items-center gap-2">
+                  Start for free
+                  <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                </span>
               </button>
-            </div>
+            </motion.div>
           </div>
 
           {/* Product Preview */}
-          <div className="max-w-5xl mx-auto">
-            <div className="bg-surface rounded-lg shadow-2xl overflow-hidden border border-border">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.5 }}
+            className="max-w-5xl mx-auto"
+          >
+            <div className="bg-surface rounded-2xl shadow-2xl overflow-hidden border border-border relative">
               {/* Browser-like header */}
-              <div className="bg-surface-muted border-b border-border px-4 py-3 flex items-center gap-2">
+              <div className="bg-surface-muted border-b border-border px-4 py-3 flex items-center gap-2 relative z-10">
                 <div className="flex gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-400"></div>
                   <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
@@ -121,7 +158,7 @@ const HomePage = () => {
               </div>
 
               {/* Kanban Board Preview */}
-              <div className="bg-gradient-to-br from-primary via-accent-purple to-accent-green p-8 sm:p-12">
+              <div className="bg-gradient-to-br from-primary via-accent-purple to-accent-green p-8 sm:p-12 relative z-10">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* Column 1 - To Do */}
                   <div className="bg-surface/95 backdrop-blur rounded-lg p-4 shadow-md border border-border">
@@ -187,79 +224,63 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Feature highlights */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-20">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent-purple/20 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-6 h-6 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                  />
-                </svg>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-24">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="group text-center p-6 rounded-2xl hover:bg-surface/50 transition-all duration-300"
+            >
+              <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-accent-purple/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Bot className="w-7 h-7 text-primary" />
               </div>
-              <h3 className="font-semibold text-text-primary mb-2 text-lg">
-                Chat to Control
+              <h3 className="font-bold text-text-primary mb-3 text-xl">
+                AI-Powered Control
               </h3>
-              <p className="text-text-secondary text-sm">
-                Tell AI what to do. Create tasks, move cards, organize everything with simple commands.
+              <p className="text-text-secondary leading-relaxed">
+                Chat naturally with AI to create, move, and manage tasks. No clicks, no complexity—just conversation.
               </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent-purple/20 to-accent-purple/20 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-6 h-6 text-accent-purple"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="group text-center p-6 rounded-2xl hover:bg-surface/50 transition-all duration-300"
+            >
+              <div className="w-14 h-14 bg-gradient-to-br from-accent-purple/20 to-accent-purple/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Zap className="w-7 h-7 text-accent-purple" />
               </div>
-              <h3 className="font-semibold text-text-primary mb-2 text-lg">
-                Full AI Control
+              <h3 className="font-bold text-text-primary mb-3 text-xl">
+                Lightning Fast
               </h3>
-              <p className="text-text-secondary text-sm">
-                AI has complete access to your board. No manual clicking, just natural conversation.
+              <p className="text-text-secondary leading-relaxed">
+                Manage your workflow 10x faster. AI understands context and executes instantly.
               </p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent-green/20 to-accent-green/20 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-6 h-6 text-accent-green"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="group text-center p-6 rounded-2xl hover:bg-surface/50 transition-all duration-300"
+            >
+              <div className="w-14 h-14 bg-gradient-to-br from-accent-green/20 to-accent-green/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                <Sparkles className="w-7 h-7 text-accent-green" />
               </div>
-              <h3 className="font-semibold text-text-primary mb-2 text-lg">
-                Team Collaboration
+              <h3 className="font-bold text-text-primary mb-3 text-xl">
+                Smart & Intuitive
               </h3>
-              <p className="text-text-secondary text-sm">
-                Everyone sees AI changes in real-time. Shared boards, shared AI assistant.
+              <p className="text-text-secondary leading-relaxed">
+                AI learns your workflow patterns and suggests optimizations automatically.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </main>
