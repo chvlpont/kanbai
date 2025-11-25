@@ -118,7 +118,7 @@ const HomePage = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-xl sm:text-2xl text-text-secondary mb-10 max-w-3xl mx-auto leading-relaxed font-light"
             >
-              Say goodbye to endless clicking. Let AI handle your entire{" "}
+              Let AI handle your entire{" "}
               <span className="whitespace-nowrap">Kanban board.</span> Create,
               move, and organize tasks through simple conversation.
             </motion.p>
