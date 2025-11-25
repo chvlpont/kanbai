@@ -104,10 +104,10 @@ const HomePage = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-5xl sm:text-6xl lg:text-7xl font-bold text-text-primary mb-6 leading-[1.1] tracking-tight"
             >
-              Manage tasks by
+              Manage tasks
               <br />
               <span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">
-                chatting with AI
+                with AI
               </span>
             </motion.h1>
 
@@ -118,7 +118,9 @@ const HomePage = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-xl sm:text-2xl text-text-secondary mb-10 max-w-3xl mx-auto leading-relaxed font-light"
             >
-              Say goodbye to endless clicking. Let AI handle your entire <span className="whitespace-nowrap">Kanban board.</span> Create, move, and organize tasks through simple conversation.
+              Say goodbye to endless clicking. Let AI handle your entire{" "}
+              <span className="whitespace-nowrap">Kanban board.</span> Create,
+              move, and organize tasks through simple conversation.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -242,7 +244,8 @@ const HomePage = () => {
                 AI-Powered Control
               </h3>
               <p className="text-text-secondary leading-relaxed">
-                Chat naturally with AI to create, move, and manage tasks. No clicks, no complexity—just conversation.
+                Chat naturally with AI to create, move, and manage tasks. No
+                clicks, no complexity—just conversation.
               </p>
             </motion.div>
 
@@ -260,7 +263,8 @@ const HomePage = () => {
                 Lightning Fast
               </h3>
               <p className="text-text-secondary leading-relaxed">
-                Manage your workflow 10x faster. AI understands context and executes instantly.
+                Manage your workflow 10x faster. AI understands context and
+                executes instantly.
               </p>
             </motion.div>
 
@@ -278,7 +282,8 @@ const HomePage = () => {
                 Smart & Intuitive
               </h3>
               <p className="text-text-secondary leading-relaxed">
-                AI learns your workflow patterns and suggests optimizations automatically.
+                AI learns your workflow patterns and suggests optimizations
+                automatically.
               </p>
             </motion.div>
           </div>
@@ -290,7 +295,11 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm text-text-secondary">
-              © 2025 Kanb<span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">ai</span>. All rights reserved.
+              © 2025 Kanb
+              <span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">
+                ai
+              </span>
+              . All rights reserved.
             </div>
             <div className="flex gap-6">
               <Link
