@@ -149,7 +149,7 @@ const HomePage = () => {
             transition={{ duration: 0.7, delay: 0.5 }}
             className="max-w-5xl mx-auto"
           >
-            <div className="bg-surface rounded-2xl shadow-2xl overflow-hidden border border-border relative">
+            <div className="bg-surface rounded-2xl overflow-hidden border border-border relative">
               {/* Browser-like header */}
               <div className="bg-surface-muted border-b border-border px-4 py-3 flex items-center gap-2 relative z-10">
                 <div className="flex gap-2">
