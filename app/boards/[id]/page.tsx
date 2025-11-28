@@ -1,7 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
-import Link from "next/link";
+import { use, useState } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -23,20 +22,14 @@ import TaskCard from "../components/TaskCard";
 import TaskModal from "../components/TaskModal";
 import ColumnModal from "../components/ColumnModal";
 import ChatSidebar from "../components/ChatSidebar";
+import BoardNavbar from "../components/BoardNavbar";
+import FloatingAIButton from "../components/FloatingAIButton";
 import { createClient } from "@/lib/supabase/client";
-import {
-  MessageSquare,
-  Sparkles,
-  MoreVertical,
-  LayoutDashboard,
-  Copy,
-  Sun,
-  Moon,
-} from "lucide-react";
 import toast from "react-hot-toast";
 import ConfirmDialog from "@/app/components/ConfirmDialog";
-import { useTheme } from "@/app/components/ThemeProvider";
 import Loader from "@/app/components/Loader";
+import { useBoardData } from "../hooks/useBoardData";
+import { useBoardSubscriptions } from "../hooks/useBoardSubscriptions";
 
 export default function BoardPage({
   params,
@@ -44,10 +37,23 @@ export default function BoardPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { theme, toggleTheme } = useTheme();
-  const [loading, setLoading] = useState(true);
-  const [columns, setColumns] = useState<ColumnType[]>([]);
-  const [boardTitle, setBoardTitle] = useState<string>("Loading...");
+
+  // Use custom hooks for data and subscriptions
+  const {
+    loading,
+    columns,
+    boardTitle,
+    inviteCode,
+    members,
+    setColumns,
+    setInviteCode,
+    setMembers,
+    fetchBoardData,
+  } = useBoardData(id);
+
+  useBoardSubscriptions({ boardId: id, setColumns, setMembers });
+
+  // Local UI state
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -58,11 +64,6 @@ export default function BoardPage({
   );
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>("todo");
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [inviteCode, setInviteCode] = useState<string>("");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [members, setMembers] = useState<{ id: string; username: string }[]>(
-    []
-  );
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     title: string;
@@ -82,241 +83,6 @@ export default function BoardPage({
       },
     })
   );
-
-  // Fetch board data function (extracted so we can call it on AI updates)
-  const fetchBoardData = async () => {
-    const supabase = createClient();
-
-    try {
-      // Fetch board title, invite code, and owner
-      const { data: boardData, error: boardError } = await supabase
-        .from("boards")
-        .select("title, invite_code, user_id")
-        .eq("id", id)
-        .single();
-      if (boardError) {
-        console.error("Error fetching board:", boardError);
-        setBoardTitle("Board not found");
-      } else {
-        console.log("Board data:", boardData);
-        console.log("Invite code:", boardData.invite_code);
-        setBoardTitle(boardData.title);
-        setInviteCode(boardData.invite_code || "");
-      }
-
-      // Fetch board members
-      const { data: membersData, error: membersError } = await supabase
-        .from("board_members")
-        .select("user_id")
-        .eq("board_id", id);
-
-      if (membersError) {
-        console.error("Error fetching members:", membersError);
-      } else {
-        // Combine owner and members, remove duplicates
-        const allUserIds = new Set<string>();
-        if (boardData?.user_id) {
-          allUserIds.add(boardData.user_id);
-        }
-        if (membersData) {
-          membersData.forEach((m) => allUserIds.add(m.user_id));
-        }
-
-        // Fetch usernames for all users
-        if (allUserIds.size > 0) {
-          const { data: profiles } = await supabase
-            .from("profiles")
-            .select("id, username")
-            .in("id", Array.from(allUserIds));
-
-          if (profiles) {
-            setMembers(profiles);
-          }
-        }
-      }
-
-      // Fetch columns
-      const { data: columnsData, error: columnsError } = await supabase
-        .from("columns")
-        .select("*")
-        .eq("board_id", id)
-        .order("position");
-      if (columnsError) {
-        console.error("Error fetching columns:", columnsError);
-        return;
-      }
-
-      // Fetch tasks for each column
-      const columnsWithTasks = await Promise.all(
-        (columnsData || []).map(async (col) => {
-          const { data: tasksData, error: tasksError } = await supabase
-            .from("tasks")
-            .select("*")
-            .eq("column_id", col.id)
-            .order("position");
-          if (tasksError) console.error("Error fetching tasks:", tasksError);
-          return { ...col, tasks: tasksData || [] };
-        })
-      );
-
-      setColumns(columnsWithTasks);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Load board data from Supabase on mount
-  useEffect(() => {
-    fetchBoardData();
-  }, [id]);
-
-  // Real-time subscriptions for AI updates
-  useEffect(() => {
-    const supabase = createClient();
-
-    // Refetch columns and tasks
-    const refetchData = async () => {
-      const { data: columnsData } = await supabase
-        .from("columns")
-        .select("*")
-        .eq("board_id", id)
-        .order("position");
-
-      if (!columnsData) return;
-
-      const columnsWithTasks = await Promise.all(
-        columnsData.map(async (col) => {
-          const { data: tasksData } = await supabase
-            .from("tasks")
-            .select("*")
-            .eq("column_id", col.id)
-            .order("position");
-          return { ...col, tasks: tasksData || [] };
-        })
-      );
-
-      setColumns(columnsWithTasks);
-    };
-
-    // Subscribe to column changes
-    const columnsChannel = supabase
-      .channel(`columns-${id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "columns",
-          filter: `board_id=eq.${id}`,
-        },
-        () => {
-          console.log("Column changed, refetching...");
-          refetchData();
-        }
-      )
-      .subscribe();
-
-    // Subscribe to task changes
-    const tasksChannel = supabase
-      .channel(`tasks-${id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "tasks",
-        },
-        (payload) => {
-          console.log("Task changed, refetching...", payload);
-          refetchData();
-        }
-      )
-      .subscribe((status) => {
-        console.log("Tasks subscription status:", status);
-      });
-
-    // Subscribe to board member changes
-    const membersChannel = supabase
-      .channel(`members-${id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "board_members",
-        },
-        async (payload) => {
-          console.log("Board members changed!", payload.eventType);
-
-          const allUserIds = new Set<string>();
-
-          // Get board owner
-          const { data: boardData } = await supabase
-            .from("boards")
-            .select("user_id")
-            .eq("id", id)
-            .single();
-
-          if (boardData?.user_id) {
-            allUserIds.add(boardData.user_id);
-          }
-
-          // Get board members
-          const { data: membersData } = await supabase
-            .from("board_members")
-            .select("user_id")
-            .eq("board_id", id);
-
-          console.log("Updated members data:", membersData);
-
-          if (membersData && membersData.length > 0) {
-            membersData.forEach((m) => allUserIds.add(m.user_id));
-          }
-
-          // Fetch usernames for all users
-          if (allUserIds.size > 0) {
-            const { data: profiles } = await supabase
-              .from("profiles")
-              .select("id, username")
-              .in("id", Array.from(allUserIds));
-
-            console.log("Updated profiles:", profiles);
-
-            if (profiles) {
-              setMembers(profiles);
-            }
-          } else {
-            setMembers([]);
-          }
-        }
-      )
-      .subscribe((status) => {
-        console.log("Members subscription status:", status);
-      });
-
-    return () => {
-      supabase.removeChannel(columnsChannel);
-      supabase.removeChannel(tasksChannel);
-      supabase.removeChannel(membersChannel);
-    };
-  }, [id]);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isMenuOpen) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    if (isMenuOpen) {
-      document.addEventListener("click", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [isMenuOpen]);
 
   const handleAddTask = (status: TaskStatus) => {
     setDefaultStatus(status);
@@ -693,241 +459,15 @@ export default function BoardPage({
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Bar */}
-      <nav className="bg-surface/95 backdrop-blur-xl border-b border-border sticky top-0 z-50 shadow-lg">
-        <div className="max-w-[1920px] mx-auto px-3 sm:px-4 lg:px-8">
-          <div className="flex items-center h-14 sm:h-16">
-            <div className="flex items-center gap-3 sm:gap-6 flex-1">
-              <Link
-                href="/"
-                className="font-bold text-xl sm:text-2xl tracking-tight hover:scale-105 transition-transform text-text-primary"
-              >
-                Kanb
-                <span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">
-                  ai
-                </span>
-              </Link>
-              <div className="hidden sm:block h-6 w-px bg-border"></div>
-              <div className="hidden sm:flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
-                  />
-                </svg>
-                <h1 className="text-text-primary font-semibold text-base sm:text-lg">
-                  {boardTitle}
-                </h1>
-              </div>
-              {members.length > 0 && (
-                <>
-                  <div className="hidden sm:block h-6 w-px bg-border"></div>
-                  <div className="hidden sm:block relative group">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-muted rounded-full border border-border cursor-default">
-                      <svg
-                        className="w-4 h-4 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                        />
-                      </svg>
-                      <span className="text-sm text-text-secondary font-medium">
-                        {members.length}{" "}
-                        {members.length === 1 ? "member" : "members"}
-                      </span>
-                    </div>
-                    {/* Tooltip */}
-                    <div className="absolute left-0 top-full mt-2 w-48 bg-surface/95 backdrop-blur-xl border border-border rounded-xl shadow-xl p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      <p className="text-xs text-accent-purple font-semibold uppercase tracking-wide mb-2">
-                        Board Members
-                      </p>
-                      <div className="space-y-1">
-                        {members.map((member) => (
-                          <div
-                            key={member.id}
-                            className="flex items-center gap-2 text-sm text-text-primary"
-                          >
-                            <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                            <span>{member.username}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-              <div className="hidden sm:block h-6 w-px bg-border"></div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                {/* Theme Toggle */}
-                <button
-                  onClick={toggleTheme}
-                  className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all border border-transparent hover:border-border"
-                  aria-label="Toggle theme"
-                >
-                  {theme === "light" ? (
-                    <Moon className="w-5 h-5" />
-                  ) : (
-                    <Sun className="w-5 h-5" />
-                  )}
-                </button>
-
-                {/* Menu Dropdown */}
-                <div className="relative">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsMenuOpen(!isMenuOpen);
-                    }}
-                    className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface-muted rounded-lg transition-all border border-transparent hover:border-border"
-                    aria-label="Menu"
-                  >
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
-
-                  {isMenuOpen && (
-                    <>
-                      {/* Dropdown */}
-                      <div
-                        className="absolute right-0 mt-2 w-48 bg-surface border border-border rounded-xl shadow-xl z-20 backdrop-blur-xl"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Link
-                          href="/boards"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-surface-muted transition-colors first:rounded-t-xl"
-                        >
-                          <LayoutDashboard className="w-4 h-4 text-primary" />
-                          Dashboard
-                        </Link>
-                        <button
-                          onClick={async () => {
-                            try {
-                              let codeToShare = inviteCode;
-
-                              // Generate invite code if it doesn't exist
-                              if (!codeToShare) {
-                                const generateCode = () => {
-                                  const chars =
-                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                                  let code = "";
-                                  for (let i = 0; i < 6; i++) {
-                                    code += chars.charAt(
-                                      Math.floor(Math.random() * chars.length)
-                                    );
-                                  }
-                                  return code;
-                                };
-
-                                codeToShare = generateCode();
-
-                                // Save to database
-                                const supabase = createClient();
-                                const { error: updateError } = await supabase
-                                  .from("boards")
-                                  .update({ invite_code: codeToShare })
-                                  .eq("id", id);
-
-                                if (updateError) {
-                                  console.error(
-                                    "Failed to generate invite code:",
-                                    updateError
-                                  );
-                                  toast.error("Failed to generate invite code");
-                                  return;
-                                }
-
-                                // Update local state
-                                setInviteCode(codeToShare);
-                              }
-
-                              // Copy to clipboard
-                              if (
-                                navigator.clipboard &&
-                                window.isSecureContext
-                              ) {
-                                await navigator.clipboard.writeText(
-                                  codeToShare
-                                );
-                              } else {
-                                // Fallback for older browsers or non-HTTPS
-                                const textArea =
-                                  document.createElement("textarea");
-                                textArea.value = codeToShare;
-                                textArea.style.position = "fixed";
-                                textArea.style.left = "-999999px";
-                                document.body.appendChild(textArea);
-                                textArea.focus();
-                                textArea.select();
-                                try {
-                                  document.execCommand("copy");
-                                } catch (err) {
-                                  console.error("Fallback copy failed:", err);
-                                  throw err;
-                                }
-                                document.body.removeChild(textArea);
-                              }
-
-                              toast.success("Invite code copied to clipboard!");
-                              setIsMenuOpen(false);
-                            } catch (err) {
-                              console.error("Failed to copy:", err);
-                              toast.error("Failed to copy invite code");
-                            }
-                          }}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-surface-muted transition-colors last:rounded-b-xl"
-                        >
-                          <Copy className="w-4 h-4 text-accent-green" />
-                          Copy Invite Code
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => setIsChatOpen(!isChatOpen)}
-                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-surface hover:bg-surface-muted border border-border hover:border-accent-purple text-text-primary text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center gap-1 sm:gap-2"
-                >
-                  <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent-purple" />
-                  <span className="hidden sm:inline">AI Assistant</span>
-                </button>
-                <button
-                  onClick={handleAddColumn}
-                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-surface hover:bg-surface-muted border border-border hover:border-primary text-text-primary text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center gap-1 sm:gap-2"
-                >
-                  <svg
-                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  <span className="hidden sm:inline">Add Column</span>
-                  <span className="sm:hidden">Add</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <BoardNavbar
+        boardId={id}
+        boardTitle={boardTitle}
+        members={members}
+        inviteCode={inviteCode}
+        onInviteCodeUpdate={setInviteCode}
+        onToggleChat={() => setIsChatOpen(!isChatOpen)}
+        onAddColumn={handleAddColumn}
+      />
 
       {/* Board */}
       <main className="max-w-[1920px] mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6">
@@ -1012,14 +552,7 @@ export default function BoardPage({
       />
 
       {/* Floating button for mobile */}
-      {!isChatOpen && (
-        <button
-          onClick={() => setIsChatOpen(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-surface hover:bg-surface-muted border border-border hover:border-accent-purple text-text-primary rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-110 z-30"
-        >
-          <Sparkles className="w-6 h-6 text-accent-purple" />
-        </button>
-      )}
+      {!isChatOpen && <FloatingAIButton onClick={() => setIsChatOpen(true)} />}
 
       {/* Confirm Dialog */}
       <ConfirmDialog
