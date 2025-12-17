@@ -293,39 +293,13 @@ const HomePage = () => {
       {/* Footer */}
       <footer className="bg-surface border-t border-border py-8 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col items-center justify-center gap-4 text-center">
             <div className="text-sm text-text-secondary">
               © 2025 Kanb
               <span className="bg-gradient-to-r from-primary via-accent-purple to-accent-orange bg-clip-text text-transparent">
                 ai
               </span>
               . All rights reserved.
-            </div>
-            <div className="flex gap-6">
-              <Link
-                href="/about"
-                className="text-text-secondary hover:text-text-primary text-sm transition-colors"
-              >
-                About
-              </Link>
-              <Link
-                href="/contact"
-                className="text-text-secondary hover:text-text-primary text-sm transition-colors"
-              >
-                Contact
-              </Link>
-              <Link
-                href="/privacy"
-                className="text-text-secondary hover:text-text-primary text-sm transition-colors"
-              >
-                Privacy
-              </Link>
-              <Link
-                href="/terms"
-                className="text-text-secondary hover:text-text-primary text-sm transition-colors"
-              >
-                Terms
-              </Link>
             </div>
           </div>
         </div>
